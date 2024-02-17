@@ -1,6 +1,8 @@
 from typing import List
 
-
+'''
+trie with insert, find, delete operations
+'''
 
 class TrieNode:
     def __init__(self):
