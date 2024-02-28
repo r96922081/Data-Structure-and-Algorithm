@@ -41,6 +41,19 @@ class doubly_linked_list:
         if node.next:
             node.next.prev = node.prev
 
+    def delete_by_data(self, data):
+        n = self.find(data)
+        if n:
+            self.delete_by_node(n)
+
+    def find(self, data):
+        current = self.head
+        while current:
+            if current.data == data:
+                return current
+            current = current.next
+        return None
+
     def print_list(self):
         current = self.head
         while current:
@@ -61,8 +74,11 @@ class doubly_linked_list_test(unittest.TestCase):
         n = dll.head
         n = n.next
         n = n.next
-        dll.delete_by_node(dll.head)
-        dll.print_list()                                                              
+        dll.delete_by_node(n)
+        dll.print_list()     
+
+        dll.delete_by_data(1)   
+        dll.print_list()                                                         
 
 if __name__ == '__main__':
     unittest.main()
