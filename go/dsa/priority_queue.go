@@ -1,4 +1,4 @@
-package priorityqueue
+package dsa
 
 type biggerThanFunc func(v1 interface{}, v2 interface{}) bool
 
@@ -12,7 +12,7 @@ type PriorityQueue struct {
 	biggerThanFunc biggerThanFunc
 }
 
-func New(biggerThanFunc biggerThanFunc) *PriorityQueue {
+func NewPriorityQueue(biggerThanFunc biggerThanFunc) *PriorityQueue {
 	ret := new(PriorityQueue)
 	ret.a = make([]*Element, 0)
 	ret.biggerThanFunc = biggerThanFunc

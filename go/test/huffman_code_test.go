@@ -1,13 +1,14 @@
 package test
 
 import (
-	"dsa/algutil"
 	"dsa/dsa"
+	"fmt"
 	"math/rand"
 	"testing"
 )
 
 func TestHuffmanCode1(t *testing.T) {
+	fmt.Println("TestHuffmanCode1")
 	input1 := make([]*dsa.HuffmanCodeInput, 0)
 	a := new(dsa.HuffmanCodeInput)
 	a.Count = 45
@@ -51,15 +52,15 @@ func TestHuffmanCode1(t *testing.T) {
 			}
 			if i != j {
 				if v1Count > v2Count {
-					algutil.AssertTrue(t, len(v1.Code) <= len(v2.Code))
+					AssertTrue(t, len(v1.Code) <= len(v2.Code))
 				} else if v2Count > v1Count {
-					algutil.AssertTrue(t, len(v2.Code) <= len(v1.Code))
+					AssertTrue(t, len(v2.Code) <= len(v1.Code))
 				}
 
 				if len(v1.Code) <= len(v2.Code) {
-					algutil.AssertTrue(t, v1.Code != v2.Code[:len(v1.Code)])
+					AssertTrue(t, v1.Code != v2.Code[:len(v1.Code)])
 				} else {
-					algutil.AssertTrue(t, v2.Code != v1.Code[:len(v2.Code)])
+					AssertTrue(t, v2.Code != v1.Code[:len(v2.Code)])
 				}
 
 			}
@@ -68,6 +69,7 @@ func TestHuffmanCode1(t *testing.T) {
 }
 
 func TestHuffmanCode2(t *testing.T) {
+	fmt.Println("TestHuffmanCode2")
 	for ti := 0; ti < 100; ti++ {
 		input := make([]*dsa.HuffmanCodeInput, 0)
 		for i := 0; i < 26; i++ {
@@ -92,15 +94,15 @@ func TestHuffmanCode2(t *testing.T) {
 				}
 				if i != j {
 					if v1Count > v2Count {
-						algutil.AssertTrue(t, len(v1.Code) <= len(v2.Code))
+						AssertTrue(t, len(v1.Code) <= len(v2.Code))
 					} else if v2Count > v1Count {
-						algutil.AssertTrue(t, len(v2.Code) <= len(v1.Code))
+						AssertTrue(t, len(v2.Code) <= len(v1.Code))
 					}
 
 					if len(v1.Code) <= len(v2.Code) {
-						algutil.AssertTrue(t, v1.Code != v2.Code[:len(v1.Code)])
+						AssertTrue(t, v1.Code != v2.Code[:len(v1.Code)])
 					} else {
-						algutil.AssertTrue(t, v2.Code != v1.Code[:len(v2.Code)])
+						AssertTrue(t, v2.Code != v1.Code[:len(v2.Code)])
 					}
 
 				}

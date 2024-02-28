@@ -1,14 +1,14 @@
 package test
 
 import (
-	"dsa/algutil"
 	"dsa/dsa"
+	"fmt"
 	"math/rand"
 	"testing"
 )
 
 func generateRandomIntSlice(size int, max int, min int) []int {
-	algutil.SetSeed()
+	SetSeed()
 	randomIntSlice := make([]int, size)
 	for i := 0; i < size; i++ {
 		randomIntSlice[i] = rand.Int()%(max-min+1) + min
@@ -16,17 +16,18 @@ func generateRandomIntSlice(size int, max int, min int) []int {
 
 	return randomIntSlice
 }
-func TestInsertionSort(t *testing.T) {
-	algutil.AssertTrue(t, true)
 
+func TestInsertionSort(t *testing.T) {
+	fmt.Println("TestInsertionSort")
 	a := generateRandomIntSlice(100, 30, -40)
 	dsa.InsertionSort(a)
 	for i := 1; i < len(a); i++ {
-		algutil.AssertTrue(t, a[i-1] <= a[i])
+		AssertTrue(t, a[i-1] <= a[i])
 	}
 }
 
 func TestBubbleSort(t *testing.T) {
+	fmt.Println("TestBubbleSort")
 	a := generateRandomIntSlice(100, 30, -40)
 	b := make([]int, len(a))
 	copy(b, a)
@@ -35,11 +36,12 @@ func TestBubbleSort(t *testing.T) {
 	dsa.BubbleSort(a)
 
 	for i := 0; i < len(a); i++ {
-		algutil.AssertTrue(t, a[i] == b[i])
+		AssertTrue(t, a[i] == b[i])
 	}
 }
 
 func TestMergeSort(t *testing.T) {
+	fmt.Println("TestMergeSort")
 	for i := 1; i < 100; i++ {
 		for size := 1; size < 18; size++ {
 			a := generateRandomIntSlice(size, 30, -40)
@@ -50,13 +52,14 @@ func TestMergeSort(t *testing.T) {
 			dsa.MergeSort(a)
 
 			for i := 0; i < len(a); i++ {
-				algutil.AssertTrue(t, a[i] == b[i])
+				AssertTrue(t, a[i] == b[i])
 			}
 		}
 	}
 }
 
 func TestQuickSort(t *testing.T) {
+	fmt.Println("TestQuickSort")
 	for i := 1; i < 100; i++ {
 		for size := 1; size < 40; size++ {
 			a := generateRandomIntSlice(size, 30, -40)
@@ -67,13 +70,14 @@ func TestQuickSort(t *testing.T) {
 			dsa.QuickSort(a)
 
 			for j := 0; j < len(a); j++ {
-				algutil.AssertTrue(t, a[j] == b[j])
+				AssertTrue(t, a[j] == b[j])
 			}
 		}
 	}
 }
 
 func TestRadixSort(t *testing.T) {
+	fmt.Println("TestRadixSort")
 	for i := 1; i < 20; i++ {
 		for size := 1; size < 15; size++ {
 			a := generateRandomIntSlice(size, 66, -66)
@@ -84,13 +88,14 @@ func TestRadixSort(t *testing.T) {
 			dsa.RadixSort(a)
 
 			for j := 0; j < len(a); j++ {
-				algutil.AssertTrue(t, a[j] == b[j])
+				AssertTrue(t, a[j] == b[j])
 			}
 		}
 	}
 }
 
 func TestCountingSort(t *testing.T) {
+	fmt.Println("TestCountingSort")
 	for i := 0; i < 20; i++ {
 		for size := 1; size < 30; size++ {
 			a := generateRandomIntSlice(size, 66, -66)
@@ -103,17 +108,18 @@ func TestCountingSort(t *testing.T) {
 			order := dsa.CountingSort(a)
 
 			for j := 0; j < len(a); j++ {
-				algutil.AssertTrue(t, a[j] == b[j])
+				AssertTrue(t, a[j] == b[j])
 			}
 
 			for i, v := range order {
-				algutil.AssertTrue(t, unsortedA[i] == a[v])
+				AssertTrue(t, unsortedA[i] == a[v])
 			}
 		}
 	}
 }
 
 func TestHeapSort(t *testing.T) {
+	fmt.Println("TestHeapSort")
 	for i := 0; i < 20; i++ {
 		for size := 1; size < 30; size++ {
 			a := generateRandomIntSlice(size, 66, -66)
@@ -124,13 +130,14 @@ func TestHeapSort(t *testing.T) {
 			dsa.HeapSort(a)
 
 			for j := 0; j < len(a); j++ {
-				algutil.AssertTrue(t, a[j] == b[j])
+				AssertTrue(t, a[j] == b[j])
 			}
 		}
 	}
 }
 
 func TestBucketSort(t *testing.T) {
+	fmt.Println("TestBucketSort")
 	for i := 0; i < 20; i++ {
 		for size := 1; size < 30; size++ {
 			min := -66
@@ -143,7 +150,7 @@ func TestBucketSort(t *testing.T) {
 			dsa.BucketSort(a, max, min)
 
 			for j := 0; j < len(a); j++ {
-				algutil.AssertTrue(t, a[j] == b[j])
+				AssertTrue(t, a[j] == b[j])
 			}
 		}
 	}

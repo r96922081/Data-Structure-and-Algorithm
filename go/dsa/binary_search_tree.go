@@ -1,10 +1,8 @@
-package tree
+package dsa
 
 import (
 	"fmt"
 )
-
-type biggerThanFunc func(v1 interface{}, v2 interface{}) bool
 
 type BinarySearchTree struct {
 	Root           *BinaryTreeNode

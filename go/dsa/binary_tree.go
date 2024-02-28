@@ -1,4 +1,4 @@
-package tree
+package dsa
 
 type BinaryTreeNode struct {
 	Left   *BinaryTreeNode
