@@ -1,9 +1,5 @@
 package dsa
 
-import (
-	"fmt"
-)
-
 type BTreeKey interface {
 	ToString() string
 	Compare(k BTreeKey) int
@@ -49,6 +45,33 @@ func (tree *BTree) Insert(key BTreeKey) {
 	}
 }
 
+func (tree *BTree) Find(key BTreeKey) BTreeKey {
+	if tree.Root == nil {
+		return nil
+	}
+	return tree.Root.find2(key)
+}
+
+func (node *BTreeNode) find2(key BTreeKey) BTreeKey {
+	i := 0
+	for ; i < len(node.Keys); i++ {
+		key2 := node.Keys[i]
+		if key.Compare(key2) == 0 {
+			return key2
+		} else if key.Compare(key2) < 0 {
+			if node.IsLeaf {
+				return nil
+			}
+			return node.Children[i].find2(key)
+		}
+	}
+
+	if node.IsLeaf {
+		return nil
+	}
+	return node.Children[i].find2(key)
+}
+
 func (node *BTreeNode) splitNode() (BTreeKey, *BTreeNode, *BTreeNode) {
 	left := NewBTreeNode()
 	right := NewBTreeNode()
@@ -92,12 +115,12 @@ func (node *BTreeNode) insertSplitedKey(childIndex int, key BTreeKey, left *BTre
 	} else {
 		tempChildrenLeft := make([]*BTreeNode, len(node.Children[:childIndex]))
 		copy(tempChildrenLeft, node.Children[:childIndex])
-		tempChildrenRight := make([]*BTreeNode, len(node.Children[childIndex:]))
-		copy(tempChildrenRight, node.Children[childIndex:])
+		tempChildrenRight := make([]*BTreeNode, len(node.Children[childIndex+1:]))
+		copy(tempChildrenRight, node.Children[childIndex+1:])
 
 		node.Children = append(tempChildrenLeft, left)
-		node.Children = append(tempChildrenLeft, right)
-		node.Children = append(tempChildrenLeft, tempChildrenRight...)
+		node.Children = append(node.Children, right)
+		node.Children = append(node.Children, tempChildrenRight...)
 	}
 }
 
@@ -131,72 +154,4 @@ func (tree *BTree) insert2(node *BTreeNode, key BTreeKey) (BTreeKey, *BTreeNode,
 
 func (tree *BTree) overFull(n *BTreeNode) bool {
 	return len(n.Keys) >= tree.Degree*2
-}
-
-func (tree *BTree) Traverse() []BTreeKey {
-	keys := make([]BTreeKey, 0)
-	if tree.Root == nil {
-		return keys
-	}
-
-	tree.Root.traverse2(&keys)
-	return keys
-}
-
-func (node *BTreeNode) traverse2(keys *[]BTreeKey) {
-	i := 0
-	for ; i < len(node.Keys); i++ {
-		if !node.IsLeaf {
-			node.Children[i].traverse2(keys)
-		}
-		*keys = append(*keys, node.Keys[i])
-	}
-	if !node.IsLeaf {
-		node.Children[i].traverse2(keys)
-	}
-}
-
-func (tree *BTree) PrintTree() string {
-	return tree.Print(tree.Root)
-}
-
-func (tree *BTree) Print(node *BTreeNode) string {
-	ret := ""
-	nodes := make([]*BTreeNode, 0)
-	levels := make([]int, 0)
-	nodes = append(nodes, node)
-	levels = append(levels, 0)
-
-	currentLevel := 0
-
-	for len(nodes) != 0 {
-		node := nodes[0]
-		nodes = nodes[1:]
-
-		level := levels[0]
-		levels = levels[1:]
-
-		if currentLevel != level {
-			ret += fmt.Sprintf("\n")
-			currentLevel += 1
-		}
-
-		ret += fmt.Sprintf("[")
-		for i := 0; i < len(node.Keys); i++ {
-			if i != 0 {
-				ret += fmt.Sprintf(", ")
-			}
-			ret += fmt.Sprintf(node.Keys[i].ToString())
-		}
-		ret += fmt.Sprintf("]")
-
-		if !node.IsLeaf {
-			for _, child := range node.Children {
-				nodes = append(nodes, child)
-				levels = append(levels, currentLevel+1)
-			}
-		}
-	}
-
-	return ret
 }
