@@ -72,6 +72,18 @@ func (node *BTreeNode) find2(key BTreeKey) BTreeKey {
 	return node.Children[i].find2(key)
 }
 
+func copyKeySlice(src []BTreeKey) []BTreeKey {
+	ret := make([]BTreeKey, len(src))
+	copy(ret, src)
+	return ret
+}
+
+func copyNodeSlice(src []*BTreeNode) []*BTreeNode {
+	ret := make([]*BTreeNode, len(src))
+	copy(ret, src)
+	return ret
+}
+
 func (node *BTreeNode) splitNode() (BTreeKey, *BTreeNode, *BTreeNode) {
 	left := NewBTreeNode()
 	right := NewBTreeNode()
@@ -81,26 +93,20 @@ func (node *BTreeNode) splitNode() (BTreeKey, *BTreeNode, *BTreeNode) {
 	middleKeyIndex := len(node.Keys) / 2
 	middleKey := node.Keys[middleKeyIndex]
 
-	left.Keys = make([]BTreeKey, len(node.Keys[:middleKeyIndex]))
-	copy(left.Keys, node.Keys[:middleKeyIndex])
-	right.Keys = make([]BTreeKey, len(node.Keys[middleKeyIndex+1:]))
-	copy(right.Keys, node.Keys[middleKeyIndex+1:])
+	left.Keys = copyKeySlice(node.Keys[:middleKeyIndex])
+	right.Keys = copyKeySlice(node.Keys[middleKeyIndex+1:])
 
 	if !node.IsLeaf {
-		left.Children = make([]*BTreeNode, len(node.Children[:middleKeyIndex+1]))
-		copy(left.Children, node.Children[:middleKeyIndex+1])
-		right.Children = make([]*BTreeNode, len(node.Children[middleKeyIndex+1:]))
-		copy(right.Children, node.Children[middleKeyIndex+1:])
+		left.Children = copyNodeSlice(node.Children[:middleKeyIndex+1])
+		right.Children = copyNodeSlice(node.Children[middleKeyIndex+1:])
 	}
 
 	return middleKey, left, right
 }
 
 func (node *BTreeNode) insertSplitedKey(childIndex int, key BTreeKey, left *BTreeNode, right *BTreeNode) {
-	tempKeysLeft := make([]BTreeKey, len(node.Keys[:childIndex]))
-	copy(tempKeysLeft, node.Keys[:childIndex])
-	tempKeysRight := make([]BTreeKey, len(node.Keys[childIndex:]))
-	copy(tempKeysRight, node.Keys[childIndex:])
+	tempKeysLeft := copyKeySlice(node.Keys[:childIndex])
+	tempKeysRight := copyKeySlice(node.Keys[childIndex:])
 
 	node.Keys = append(tempKeysLeft, key)
 	node.Keys = append(node.Keys, tempKeysRight...)
@@ -113,10 +119,8 @@ func (node *BTreeNode) insertSplitedKey(childIndex int, key BTreeKey, left *BTre
 		node.Children[childIndex] = left
 		node.Children = append(node.Children, right)
 	} else {
-		tempChildrenLeft := make([]*BTreeNode, len(node.Children[:childIndex]))
-		copy(tempChildrenLeft, node.Children[:childIndex])
-		tempChildrenRight := make([]*BTreeNode, len(node.Children[childIndex+1:]))
-		copy(tempChildrenRight, node.Children[childIndex+1:])
+		tempChildrenLeft := copyNodeSlice(node.Children[:childIndex])
+		tempChildrenRight := copyNodeSlice(node.Children[childIndex+1:])
 
 		node.Children = append(tempChildrenLeft, left)
 		node.Children = append(node.Children, right)
