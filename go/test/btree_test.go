@@ -3,6 +3,7 @@ package test
 import (
 	"dsa/dsa"
 	"fmt"
+	"math/rand"
 	"strconv"
 	"testing"
 )
@@ -31,7 +32,10 @@ func (n *MyKey) ToString() string {
 //     x.key1 <= x.key2 <= … <= x.keyn
 //  2. If ki is “any” key stored in x.ci, then k1 <= x.key1 <= k2 <= … <= x.key(x.n) <= k(x.n + 1)
 func checkPropertyValueInOrder(t *testing.T, tree *dsa.BTree) {
-
+	keys := tree.Traverse()
+	for i := 0; i < len(keys)-1; i++ {
+		AssertTrue(t, keys[i].Compare(keys[i+1]) <= 0)
+	}
 }
 
 // Every node other than root: t - 1 <= # of keys
@@ -50,15 +54,12 @@ func checkDegree(t *testing.T, tree *dsa.BTree, node *dsa.BTreeNode) {
 	}
 }
 
-/*
-func checkLeafDepth2(t *testing.T, tree *btree.Tree, id string, depth int, leafDepth int) {
-	node := tree.StaticNode_.ReadFromDisk(id, tree.StaticKey_, tree.Gv_)
-
-	if node.IsLeaf_ {
+func checkLeafDepth2(t *testing.T, tree *dsa.BTree, node *dsa.BTreeNode, depth int, leafDepth int) {
+	if node.IsLeaf {
 		AssertTrue(t, depth == leafDepth)
 	} else {
 		AssertTrue(t, depth < leafDepth)
-		for _, child := range node.Children_ {
+		for _, child := range node.Children {
 			checkLeafDepth2(t, tree, child, depth+1, leafDepth)
 		}
 	}
@@ -68,27 +69,32 @@ func checkLeafDepth2(t *testing.T, tree *btree.Tree, id string, depth int, leafD
 func checkLeafDepth(t *testing.T, tree *dsa.BTree) {
 	leafDepth := 0
 
-	node := tree.root
+	node := tree.Root
 
-	for node.children[0] != nil {
-		node = tree.StaticNode_.ReadFromDisk(node.Children_[0], tree.StaticKey_, tree.Gv_)
+	for len(node.Children) != 0 {
+		node = node.Children[0]
 		leafDepth++
 	}
 
-	checkLeafDepth2(t, tree, tree.Root_, 0, leafDepth)
-}*/
+	checkLeafDepth2(t, tree, tree.Root, 0, leafDepth)
+}
 
 func checkBTreeProperties(t *testing.T, tree *dsa.BTree) {
 	checkPropertyValueInOrder(t, tree)
 	checkDegree(t, tree, tree.Root)
-	//checkLeafDepth(t, tree)
+	checkLeafDepth(t, tree)
 }
 
 func TestBTree(t *testing.T) {
+	rand.Seed(0)
+
 	tree := dsa.NewBTree(2)
 
-	for i := 0; i < 15; i++ {
-		tree.Insert(&MyKey{i, ""})
+	for i := 0; i < 12; i++ {
+		tree.Insert(&MyKey{rand.Intn(100), ""})
+		//fmt.Println(tree.PrintTree())
+		//tree.Insert(&MyKey{0, ""})
+		checkBTreeProperties(t, tree)
 	}
 
 	keys := tree.Traverse()
@@ -96,6 +102,8 @@ func TestBTree(t *testing.T) {
 		fmt.Printf(keys[i].ToString() + ", ")
 	}
 	fmt.Println()
+
+	fmt.Println(tree.PrintTree())
 
 	checkBTreeProperties(t, tree)
 }
