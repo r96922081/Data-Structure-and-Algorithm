@@ -27,5 +27,8 @@ func SetSeed() {
 }
 
 func AssertTrue(t *testing.T, exp bool) {
+	if exp == false {
+		fmt.Println("assert failed")
+	}
 	assert.True(t, exp)
 }
