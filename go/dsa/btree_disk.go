@@ -1,5 +1,9 @@
 package dsa
 
+import (
+	"dsa/util"
+)
+
 type BTreeKeyDisk interface {
 	ToString() string
 	Compare(k BTreeKeyDisk) int
@@ -8,6 +12,8 @@ type BTreeKeyDisk interface {
 type BTreeDisk struct {
 	Root   *BTreeNodeDisk
 	Degree int
+	folder string
+	name   string
 }
 
 type BTreeNodeDisk struct {
@@ -16,8 +22,11 @@ type BTreeNodeDisk struct {
 	Children []*BTreeNodeDisk
 }
 
-func NewBTreeDisk(degree int) *BTreeDisk {
-	return &BTreeDisk{nil, degree}
+func NewBTreeDisk(degree int, folder string, name string) *BTreeDisk {
+	f := util.NewFileSerializer(folder)
+	f.CreateDirIfNotExist()
+
+	return &BTreeDisk{nil, degree, folder, name}
 }
 
 func NewBTreeNodeDisk() *BTreeNodeDisk {

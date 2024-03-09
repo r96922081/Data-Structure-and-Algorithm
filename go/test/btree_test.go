@@ -157,7 +157,7 @@ func TestBTreeInsert(t *testing.T) {
 
 	for degree := 2; degree < 4; degree++ {
 		tree := dsa.NewBTree(degree)
-		for count := 0; count < 15; count++ {
+		for count := 0; count < 100; count++ {
 			for i := 0; i < count; i++ {
 				tree.Insert(&MyKey{rand.Intn(10), ""})
 				//fmt.Println(getPrintedTree(tree))

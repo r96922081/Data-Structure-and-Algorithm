@@ -156,8 +156,8 @@ func TestBTreeDiskInsertDisk(t *testing.T) {
 	rand.Seed(0)
 
 	for degree := 2; degree < 4; degree++ {
-		tree := dsa.NewBTreeDisk(degree)
-		for count := 0; count < 15; count++ {
+		tree := dsa.NewBTreeDisk(degree, "btree_test_folder", "test_tree1")
+		for count := 0; count < 30; count++ {
 			for i := 0; i < count; i++ {
 				tree.Insert(&MyKeyDisk{rand.Intn(10), ""})
 				//fmt.Println(getPrintedTreeDisk(tree))
@@ -169,7 +169,7 @@ func TestBTreeDiskInsertDisk(t *testing.T) {
 }
 
 func TestBTreeDiskFindDisk(t *testing.T) {
-	tree := dsa.NewBTreeDisk(2)
+	tree := dsa.NewBTreeDisk(2, "btree_test_folder", "test_tree1")
 	for i := 0; i < 100; i++ {
 		if i%2 == 0 {
 			tree.Insert(&MyKeyDisk{i, ""})
