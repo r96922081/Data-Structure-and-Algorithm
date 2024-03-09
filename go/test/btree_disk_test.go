@@ -2,6 +2,7 @@ package test
 
 import (
 	"dsa/dsa"
+	"dsa/util"
 	"math/rand"
 	"strconv"
 	"testing"
@@ -155,8 +156,9 @@ func traverse2Disk(node *dsa.BTreeNodeDisk, keys *[]dsa.BTreeKeyDisk) {
 func TestBTreeDiskInsertDisk(t *testing.T) {
 	rand.Seed(0)
 
+	util.NewFileSerializer("btree_test_folder").DeleteFileIfExist()
 	for degree := 2; degree < 4; degree++ {
-		tree := dsa.NewBTreeDisk(degree, "btree_test_folder", "test_tree1")
+		tree := dsa.NewBTreeDisk(degree, "btree_test_folder")
 		for count := 0; count < 30; count++ {
 			for i := 0; i < count; i++ {
 				tree.Insert(&MyKeyDisk{rand.Intn(10), ""})
@@ -165,11 +167,14 @@ func TestBTreeDiskInsertDisk(t *testing.T) {
 				checkBTreePropertiesDisk(t, tree)
 			}
 		}
+		util.NewFileSerializer("btree_test_folder").DeleteFileIfExist()
 	}
 }
 
 func TestBTreeDiskFindDisk(t *testing.T) {
-	tree := dsa.NewBTreeDisk(2, "btree_test_folder", "test_tree1")
+	util.NewFileSerializer("btree_test_folder").DeleteFileIfExist()
+
+	tree := dsa.NewBTreeDisk(2, "btree_test_folder")
 	for i := 0; i < 100; i++ {
 		if i%2 == 0 {
 			tree.Insert(&MyKeyDisk{i, ""})
@@ -184,4 +189,6 @@ func TestBTreeDiskFindDisk(t *testing.T) {
 			AssertTrue(t, tree.Find(&MyKeyDisk{i, ""}) == nil)
 		}
 	}
+
+	util.NewFileSerializer("btree_test_folder").DeleteFileIfExist()
 }

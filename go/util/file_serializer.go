@@ -41,7 +41,7 @@ func (file *FileSerializer) DeleteFileIfExist() error {
 		return nil
 	}
 
-	err := os.Remove(file.FilePath_)
+	err := os.RemoveAll(file.FilePath_)
 	return err
 }
 
@@ -50,7 +50,7 @@ func (file *FileSerializer) CreateDirIfNotExist() error {
 		return nil
 	}
 
-	err := os.Mkdir(file.FilePath_, os.ModeDir)
+	err := os.MkdirAll(file.FilePath_, os.ModeDir)
 	return err
 }
 

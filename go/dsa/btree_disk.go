@@ -2,6 +2,10 @@ package dsa
 
 import (
 	"dsa/util"
+	"fmt"
+	"path/filepath"
+
+	"github.com/google/uuid"
 )
 
 type BTreeKeyDisk interface {
@@ -10,32 +14,64 @@ type BTreeKeyDisk interface {
 }
 
 type BTreeDisk struct {
+	folder string
 	Root   *BTreeNodeDisk
 	Degree int
-	folder string
-	name   string
 }
 
 type BTreeNodeDisk struct {
+	folder   string
+	id       string
 	IsLeaf   bool
 	Keys     []BTreeKeyDisk
 	Children []*BTreeNodeDisk
 }
 
-func NewBTreeDisk(degree int, folder string, name string) *BTreeDisk {
+func NewBTreeDisk(degree int, folder string) *BTreeDisk {
 	f := util.NewFileSerializer(folder)
-	f.CreateDirIfNotExist()
+	if f.FileExist() {
+		fmt.Errorf("BTree %s already exists", folder)
+		return nil
+	}
 
-	return &BTreeDisk{nil, degree, folder, name}
+	tree := &BTreeDisk{folder, nil, degree}
+	tree.initBTreeFile()
+
+	return tree
 }
 
-func NewBTreeNodeDisk() *BTreeNodeDisk {
-	return &BTreeNodeDisk{false, make([]BTreeKeyDisk, 0), make([]*BTreeNodeDisk, 0)}
+func (tree *BTreeDisk) NewBTreeNodeDisk() *BTreeNodeDisk {
+	node := &BTreeNodeDisk{tree.folder, uuid.New().String(), false, make([]BTreeKeyDisk, 0), make([]*BTreeNodeDisk, 0)}
+	node.initBTreeNodeFile()
+	return node
+}
+
+func (tree *BTreeDisk) initBTreeFile() {
+	f := util.NewFileSerializer(tree.folder)
+	f.CreateDirIfNotExist()
+
+	rootFile := filepath.Join(tree.folder, "tree")
+	f = util.NewFileSerializer(rootFile)
+	f.CreateFileIfNotExist()
+	f.OpenForWriteTruncate()
+	f.WriteInt(tree.Degree)
+	f.Close()
+}
+
+func (node *BTreeNodeDisk) initBTreeNodeFile() {
+	filepath.Join(node.folder, node.id)
+	f := util.NewFileSerializer(filepath.Join(node.folder, node.id))
+	f.CreateFileIfNotExist()
+}
+
+func (node *BTreeNodeDisk) writeToFile() {
+	f := util.NewFileSerializer(filepath.Join(node.folder, node.id))
+
 }
 
 func (tree *BTreeDisk) Insert(key BTreeKeyDisk) {
 	if tree.Root == nil {
-		n := NewBTreeNodeDisk()
+		n := tree.NewBTreeNodeDisk()
 		n.IsLeaf = true
 		n.Keys = append(n.Keys, key)
 		tree.Root = n
@@ -44,7 +80,7 @@ func (tree *BTreeDisk) Insert(key BTreeKeyDisk) {
 
 	splitedKey, leftChild, rightChild := tree.insert2(tree.Root, key)
 	if splitedKey != nil {
-		node := NewBTreeNodeDisk()
+		node := tree.NewBTreeNodeDisk()
 		node.Keys = append(node.Keys, splitedKey)
 
 		node.Children = append(node.Children, leftChild)
@@ -93,9 +129,9 @@ func copyNodeSliceDisk(src []*BTreeNodeDisk) []*BTreeNodeDisk {
 	return ret
 }
 
-func (node *BTreeNodeDisk) splitNode() (BTreeKeyDisk, *BTreeNodeDisk, *BTreeNodeDisk) {
-	left := NewBTreeNodeDisk()
-	right := NewBTreeNodeDisk()
+func (tree *BTreeDisk) splitNode(node *BTreeNodeDisk) (BTreeKeyDisk, *BTreeNodeDisk, *BTreeNodeDisk) {
+	left := tree.NewBTreeNodeDisk()
+	right := tree.NewBTreeNodeDisk()
 	left.IsLeaf = node.IsLeaf
 	right.IsLeaf = node.IsLeaf
 
@@ -160,7 +196,7 @@ func (tree *BTreeDisk) insert2(node *BTreeNodeDisk, key BTreeKeyDisk) (BTreeKeyD
 	}
 
 	if tree.overFull(node) {
-		return node.splitNode()
+		return tree.splitNode(node)
 	}
 	return nil, nil, nil
 }
