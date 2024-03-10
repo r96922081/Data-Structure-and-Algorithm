@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	_ = dsa.NewBTreeDisk(2, "tt")
+	_ = dsa.NewBTreeDisk(2, "tt", nil)
 	fmt.Println("main()")
 }

@@ -12,8 +12,8 @@ type MyKey struct {
 	content string
 }
 
-func (n1 *MyKey) Compare(k dsa.BTreeKey) int {
-	n2 := k.(*MyKey)
+func (n1 MyKey) Compare(k dsa.BTreeKey) int {
+	n2 := k.(MyKey)
 	if n1.key < n2.key {
 		return -1
 	} else if n1.key == n2.key {
@@ -23,7 +23,7 @@ func (n1 *MyKey) Compare(k dsa.BTreeKey) int {
 	}
 }
 
-func (n *MyKey) ToString() string {
+func (n MyKey) ToString() string {
 	return "" + strconv.Itoa(n.key) + "(" + n.content + ")"
 }
 
@@ -159,7 +159,7 @@ func TestBTreeInsert(t *testing.T) {
 		tree := dsa.NewBTree(degree)
 		for count := 0; count < 100; count++ {
 			for i := 0; i < count; i++ {
-				tree.Insert(&MyKey{rand.Intn(10), ""})
+				tree.Insert(MyKey{rand.Intn(10), ""})
 				//fmt.Println(getPrintedTree(tree))
 				//fmt.Println("=============")
 				checkBTreeProperties(t, tree)
@@ -172,16 +172,16 @@ func TestBTreeFind(t *testing.T) {
 	tree := dsa.NewBTree(2)
 	for i := 0; i < 100; i++ {
 		if i%2 == 0 {
-			tree.Insert(&MyKey{i, ""})
-			tree.Insert(&MyKey{i, ""})
+			tree.Insert(MyKey{i, ""})
+			tree.Insert(MyKey{i, ""})
 		}
 	}
 
 	for i := 0; i < 100; i++ {
 		if i%2 == 0 {
-			AssertTrue(t, tree.Find(&MyKey{i, ""}) != nil)
+			AssertTrue(t, tree.Find(MyKey{i, ""}) != nil)
 		} else {
-			AssertTrue(t, tree.Find(&MyKey{i, ""}) == nil)
+			AssertTrue(t, tree.Find(MyKey{i, ""}) == nil)
 		}
 	}
 }
