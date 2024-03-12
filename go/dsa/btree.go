@@ -45,31 +45,42 @@ func (tree *BTree) Insert(key BTreeKey) {
 	}
 }
 
-func (tree *BTree) Find(key BTreeKey) BTreeKey {
+func (tree *BTree) Find(key BTreeKey) []BTreeKey {
+	ret := make([]BTreeKey, 0)
+
 	if tree.Root == nil {
-		return nil
+		return ret
 	}
-	return tree.Root.find2(key)
+	tree.Root.find2(key, &ret)
+	return ret
 }
 
-func (node *BTreeNode) find2(key BTreeKey) BTreeKey {
-	i := 0
-	for ; i < len(node.Keys); i++ {
-		key2 := node.Keys[i]
-		if key.Compare(key2) == 0 {
-			return key2
-		} else if key.Compare(key2) < 0 {
-			if node.IsLeaf {
-				return nil
-			}
-			return node.Children[i].find2(key)
+func (node *BTreeNode) find2(key BTreeKey, ret *[]BTreeKey) {
+	startChild := 0
+	for ; startChild < len(node.Keys); startChild++ {
+		if key.Compare(node.Keys[startChild]) <= 0 {
+			break
 		}
 	}
 
-	if node.IsLeaf {
-		return nil
+	endChild := startChild + 1
+	for ; endChild < len(node.Keys); endChild++ {
+		if key.Compare(node.Keys[endChild]) < 0 {
+			break
+		}
 	}
-	return node.Children[i].find2(key)
+
+	for keyIndex := startChild; keyIndex < len(node.Keys) && keyIndex < endChild; keyIndex++ {
+		if key.Compare(node.Keys[keyIndex]) == 0 {
+			*ret = append(*ret, node.Keys[keyIndex])
+		}
+	}
+
+	if !node.IsLeaf {
+		for child := startChild; child < len(node.Children); child++ {
+			node.Children[child].find2(key, ret)
+		}
+	}
 }
 
 func copyKeySlice(src []BTreeKey) []BTreeKey {

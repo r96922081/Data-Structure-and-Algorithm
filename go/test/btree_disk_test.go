@@ -164,7 +164,7 @@ func TestBTreeDiskInsertDisk(t *testing.T) {
 	}
 }
 
-func TestBTreeDiskFindDisk(t *testing.T) {
+func TestBTreeDiskFind1Disk(t *testing.T) {
 	util.NewFileSerializer("btree_test_folder").DeleteFileIfExist()
 
 	tree := dsa.NewBTreeDisk(2, "btree_test_folder", MyKeyDisk{})
@@ -175,11 +175,49 @@ func TestBTreeDiskFindDisk(t *testing.T) {
 		}
 	}
 
+	tree = dsa.ReadBTreeFromFile("btree_test_folder", MyKeyDisk{})
+
 	for i := 0; i < 100; i++ {
 		if i%2 == 0 {
-			AssertTrue(t, tree.Find(MyKeyDisk{i, ""}) != nil)
+			AssertTrue(t, len(tree.Find(MyKeyDisk{i, ""})) == 2)
 		} else {
-			AssertTrue(t, tree.Find(MyKeyDisk{i, ""}) == nil)
+			AssertTrue(t, len(tree.Find(MyKeyDisk{i, ""})) == 0)
+		}
+	}
+
+	util.NewFileSerializer("btree_test_folder").DeleteFileIfExist()
+}
+
+func TestBTreeDiskFind2Disk(t *testing.T) {
+	rand.Seed(0)
+	maxInt := 10
+
+	for outerLoopCount := 0; outerLoopCount < 1; outerLoopCount++ {
+		for elementCount := 0; elementCount < 100; elementCount++ {
+			util.NewFileSerializer("btree_test_folder").DeleteFileIfExist()
+
+			m := make(map[int]int)
+			tree := dsa.NewBTreeDisk(2, "btree_test_folder", MyKeyDisk{-1, ""})
+			for i := 0; i < elementCount; i++ {
+				v := rand.Intn(maxInt)
+				tree.Insert(MyKeyDisk{v, ""})
+
+				_, ok := m[v]
+				if ok {
+					m[v] = m[v] + 1
+				} else {
+					m[v] = 1
+				}
+			}
+
+			tree = dsa.ReadBTreeFromFile("btree_test_folder", MyKeyDisk{})
+			for i := 0; i < maxInt; i++ {
+				golden, ok := m[i]
+				if !ok {
+					golden = 0
+				}
+				AssertTrue(t, golden == len(tree.Find(MyKeyDisk{i, ""})))
+			}
 		}
 	}
 

@@ -92,11 +92,14 @@ func (tree *BTreeDisk) Insert(key BTreeKeyDisk) {
 	}
 }
 
-func (tree *BTreeDisk) Find(key BTreeKeyDisk) BTreeKeyDisk {
+func (tree *BTreeDisk) Find(key BTreeKeyDisk) []BTreeKeyDisk {
+	ret := make([]BTreeKeyDisk, 0)
+
 	if tree.Root == nil {
-		return nil
+		return ret
 	}
-	return tree.find2(tree.Root, key)
+	tree.find2(tree.Root, key, &ret)
+	return ret
 }
 
 func ___PublicFuncSeparator___() {}
@@ -188,28 +191,34 @@ func (node *BTreeNodeDisk) writeFile() {
 	f.Close()
 }
 
-func (tree *BTreeDisk) find2(node *BTreeNodeDisk, key BTreeKeyDisk) BTreeKeyDisk {
-	i := 0
-	for ; i < len(node.Keys); i++ {
-		key2 := node.Keys[i]
-		if key.Compare(key2) == 0 {
-			return key2
-		} else if key.Compare(key2) < 0 {
-			if node.IsLeaf {
-				return nil
-			}
+func (tree *BTreeDisk) find2(node *BTreeNodeDisk, key BTreeKeyDisk, ret *[]BTreeKeyDisk) {
+	node = tree.ReadBTreeNodeFromFile(node.Folder, node.Id)
 
-			child := tree.ReadBTreeNodeFromFile(node.Children[i].Folder, node.Children[i].Id)
-			return tree.find2(child, key)
+	startChild := 0
+	for ; startChild < len(node.Keys); startChild++ {
+		if key.Compare(node.Keys[startChild]) <= 0 {
+			break
 		}
 	}
 
-	if node.IsLeaf {
-		return nil
+	endChild := startChild + 1
+	for ; endChild < len(node.Keys); endChild++ {
+		if key.Compare(node.Keys[endChild]) < 0 {
+			break
+		}
 	}
 
-	child := tree.ReadBTreeNodeFromFile(node.Children[i].Folder, node.Children[i].Id)
-	return tree.find2(child, key)
+	for keyIndex := startChild; keyIndex < len(node.Keys) && keyIndex < endChild; keyIndex++ {
+		if key.Compare(node.Keys[keyIndex]) == 0 {
+			*ret = append(*ret, node.Keys[keyIndex])
+		}
+	}
+
+	if !node.IsLeaf {
+		for child := startChild; child < len(node.Children); child++ {
+			tree.find2(node.Children[child], key, ret)
+		}
+	}
 }
 
 func copyKeySliceDisk(src []BTreeKeyDisk) []BTreeKeyDisk {
@@ -256,6 +265,7 @@ func (node *BTreeNodeDisk) insertSplitedKey(childIndex int, key BTreeKeyDisk, le
 	node.Keys = append(node.Keys, tempKeysRight...)
 
 	if node.IsLeaf {
+		node.writeFile()
 		return
 	}
 

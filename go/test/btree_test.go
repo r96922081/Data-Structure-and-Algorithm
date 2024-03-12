@@ -168,7 +168,7 @@ func TestBTreeInsert(t *testing.T) {
 	}
 }
 
-func TestBTreeFind(t *testing.T) {
+func TestBTreeFind1(t *testing.T) {
 	tree := dsa.NewBTree(2)
 	for i := 0; i < 100; i++ {
 		if i%2 == 0 {
@@ -179,9 +179,40 @@ func TestBTreeFind(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		if i%2 == 0 {
-			AssertTrue(t, tree.Find(MyKey{i, ""}) != nil)
+			AssertTrue(t, len(tree.Find(MyKey{i, ""})) == 2)
 		} else {
-			AssertTrue(t, tree.Find(MyKey{i, ""}) == nil)
+			AssertTrue(t, len(tree.Find(MyKey{i, ""})) == 0)
+		}
+	}
+}
+
+func TestBTreeFind2(t *testing.T) {
+	rand.Seed(0)
+	maxInt := 10
+
+	for outerLoopCount := 0; outerLoopCount < 10; outerLoopCount++ {
+		for elementCount := 0; elementCount < 100; elementCount++ {
+			m := make(map[int]int)
+			tree := dsa.NewBTree(2)
+			for i := 0; i < elementCount; i++ {
+				v := rand.Intn(maxInt)
+				tree.Insert(MyKey{v, ""})
+
+				_, ok := m[v]
+				if ok {
+					m[v] = m[v] + 1
+				} else {
+					m[v] = 1
+				}
+			}
+
+			for i := 0; i < maxInt; i++ {
+				golden, ok := m[i]
+				if !ok {
+					golden = 0
+				}
+				AssertTrue(t, golden == len(tree.Find(MyKey{i, ""})))
+			}
 		}
 	}
 }
