@@ -264,8 +264,9 @@ func (node *BTreeNodeDisk) insertSplitedKey(childIndex int, key BTreeKeyDisk, le
 	node.Keys = append(tempKeysLeft, key)
 	node.Keys = append(node.Keys, tempKeysRight...)
 
+	defer node.writeFile()
+
 	if node.IsLeaf {
-		node.writeFile()
 		return
 	}
 
@@ -280,8 +281,6 @@ func (node *BTreeNodeDisk) insertSplitedKey(childIndex int, key BTreeKeyDisk, le
 		node.Children = append(node.Children, right)
 		node.Children = append(node.Children, tempChildrenRight...)
 	}
-
-	node.writeFile()
 }
 
 func (tree *BTreeDisk) insert2(node *BTreeNodeDisk, key BTreeKeyDisk) (BTreeKeyDisk, *BTreeNodeDisk, *BTreeNodeDisk) {

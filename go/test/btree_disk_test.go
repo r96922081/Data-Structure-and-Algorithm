@@ -286,8 +286,8 @@ func TestBTreeIO_3(t *testing.T) {
 		tree.Insert(MyKeyDisk{i, ""})
 	}
 
-	AssertTrue(t, tree.Find(MyKeyDisk{3, ""}) != nil)
-	AssertTrue(t, tree.Find(MyKeyDisk{-1, ""}) == nil)
+	AssertTrue(t, len(tree.Find(MyKeyDisk{3, ""})) != 0)
+	AssertTrue(t, len(tree.Find(MyKeyDisk{-1, ""})) == 0)
 
 	tree = dsa.ReadBTreeFromFile(folder, MyKeyDisk{})
 	checkBTreePropertiesDisk(t, tree)
@@ -313,8 +313,8 @@ func TestBTreeIO_4(t *testing.T) {
 		tree.Insert(MyKeyDisk{i, ""})
 	}
 
-	AssertTrue(t, tree.Find(MyKeyDisk{3, ""}) != nil)
-	AssertTrue(t, tree.Find(MyKeyDisk{-1, ""}) == nil)
+	AssertTrue(t, len(tree.Find(MyKeyDisk{3, ""})) != 0)
+	AssertTrue(t, len(tree.Find(MyKeyDisk{-1, ""})) == 0)
 
 	tree = dsa.ReadBTreeFromFile(folder, MyKeyDisk{})
 	checkBTreePropertiesDisk(t, tree)
