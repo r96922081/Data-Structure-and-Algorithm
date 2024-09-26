@@ -41,7 +41,7 @@ public class Program
 
         for (int i = 0; i < 20; i++)
             tree.Insert(new CustomClass(i));
-        xxx
+
         Console.WriteLine(tree);
 
         Console.WriteLine(tree.Find(new CustomClass(11)).Count);
