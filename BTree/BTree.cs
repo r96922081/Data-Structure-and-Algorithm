@@ -338,32 +338,43 @@ public class BTree<T> where T : IComparable<T>
         return found;
     }
 
+    private int getString(int level, BTreeNode<T> currentNode, List<List<string>> nodeStringByLevel)
+    {
+        if (level == nodeStringByLevel.Count)
+            nodeStringByLevel.Add(new List<string>());
+
+        string currentNodeString = currentNode.ToString();
+        int childrenWidth = 0;
+        foreach (BTreeNode<T> child in currentNode.children)
+            childrenWidth += getString(level + 1, child, nodeStringByLevel);
+
+        for (int i = 0; currentNodeString.Length < childrenWidth; i++)
+            currentNodeString += " ";
+
+        nodeStringByLevel[level].Add(currentNodeString);
+
+        return childrenWidth >= currentNodeString.Length ? childrenWidth : currentNodeString.Length;
+    }
+
     public override string ToString()
     {
+        string ret = "";
+
         if (root == null)
-            return "";
+            return ret;
 
-        string s = "";
+        List<List<string>> nodeStringByLevel = new List<List<string>>();
+        getString(0, root, nodeStringByLevel);
 
-        List<BTreeNode<T>> currentLevel = new List<BTreeNode<T>>();
-        currentLevel.Add(root);
-
-        List<BTreeNode<T>> nextLevel = new List<BTreeNode<T>>();
-
-        while (currentLevel.Count > 0)
+        foreach (List<string> level in nodeStringByLevel)
         {
-            foreach (BTreeNode<T> node in currentLevel)
+            foreach (string nodeString in level)
             {
-                s += node.ToString() + " ";
-                nextLevel.AddRange(node.children);
+                ret += nodeString;
             }
-            s += "\n";
-
-            currentLevel.Clear();
-            currentLevel.AddRange(nextLevel);
-            nextLevel = new List<BTreeNode<T>>();
+            ret += "\n";
         }
 
-        return s;
+        return ret;
     }
 }

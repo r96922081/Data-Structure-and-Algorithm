@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BTree")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+36506908f33fb30d466c298e9404ee64d37f5730")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1420de1988a5d06775c4c259e6d6b2e7d1d7abc8")]
 [assembly: System.Reflection.AssemblyProductAttribute("BTree")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BTree")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
