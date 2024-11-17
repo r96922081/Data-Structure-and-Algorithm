@@ -37,7 +37,15 @@ public class Program
     {
         //Ut.Test();
 
+
+
         BTree<CustomClass> tree = new BTree<CustomClass>(2);
+
+        for (int i = 0; i < 28; i++)
+        {
+            tree.Insert(new CustomClass(i));
+        }
+        Console.WriteLine(tree);
 
         for (int i = 0; i < 20; i++)
             tree.Insert(new CustomClass(i));

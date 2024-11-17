@@ -349,7 +349,12 @@ public class BTree<T> where T : IComparable<T>
             childrenWidth += getString(level + 1, child, nodeStringByLevel);
 
         for (int i = 0; currentNodeString.Length < childrenWidth; i++)
-            currentNodeString += " ";
+        {
+            if (i % 2 == 0)
+                currentNodeString = " " + currentNodeString;
+            else
+                currentNodeString = currentNodeString + " ";
+        }
 
         nodeStringByLevel[level].Add(currentNodeString);
 
