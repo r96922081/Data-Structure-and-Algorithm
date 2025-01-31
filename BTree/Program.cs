@@ -45,9 +45,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        Ut.Test();
-
-
+        //Ut.Test();
 
         BTree<CustomClass> tree = new BTree<CustomClass>(2);
 
