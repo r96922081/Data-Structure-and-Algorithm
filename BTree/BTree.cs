@@ -1,4 +1,12 @@
-﻿public class BTreeNode<T> where T : IBTreeValue
+﻿public interface IBTreeValue
+{
+    int CompareTo(IBTreeValue? other);
+    string ToString();
+    void Save(BinaryWriter bw);
+    IBTreeValue Load(BinaryReader br);
+}
+
+public class BTreeNode<T> where T : IBTreeValue
 {
     public BTreeNode<T> parent = null;
     public List<T> keys = new List<T>();

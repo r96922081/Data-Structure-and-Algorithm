@@ -1,12 +1,6 @@
 ﻿using System.Diagnostics;
 
-public interface IBTreeValue
-{
-    int CompareTo(IBTreeValue? other);
-    string ToString();
-    void Save(BinaryWriter bw);
-    IBTreeValue Load(BinaryReader br);
-}
+
 
 public class CustomClass2 : IBTreeValue
 {
