@@ -45,7 +45,7 @@ public class CustomClass2 : IBTreeValue
     }
 }
 
-public class Ut
+public class MainUt
 {
     private static void Check(bool b)
     {
@@ -281,11 +281,22 @@ public class Ut
 
     }
 
-    public static void Test()
+    public static void BTreeUt()
     {
         TestInsert();
         TestFind();
         TestDelete();
         TestSave();
+    }
+
+    public static void BPlusTreeUt()
+    {
+
+    }
+
+    public static void Ut()
+    {
+        BPlusTreeUt();
+        //BTreeUt();
     }
 }
