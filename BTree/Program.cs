@@ -1,4 +1,4 @@
-﻿public class CustomClass : IComparable<CustomClass>
+﻿public class CustomClass : IBTreeValue
 {
     public int value = 0;
 
@@ -12,20 +12,30 @@
         this.value = value;
     }
 
-    public int CompareTo(CustomClass? other)
+    public int CompareTo(IBTreeValue? other)
     {
         if (other == null)
             return 0;
 
-        if (value < other.value)
+        if (value < ((CustomClass)other).value)
             return -1;
-        else if (value == other.value)
+        else if (value == ((CustomClass)other).value)
             return 0;
         else
             return 1;
     }
 
-    public override string ToString()
+    public void Save(BinaryWriter bw)
+    {
+
+    }
+
+    public IBTreeValue Load(BinaryReader br)
+    {
+        return null;
+    }
+
+    public string ToString()
     {
         return "" + value;
     }
@@ -35,7 +45,7 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        //Ut.Test();
+        Ut.Test();
 
 
 

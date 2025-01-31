@@ -1,4 +1,6 @@
-﻿public class BTreeNode<T> where T : IComparable<T>
+﻿using static System.Net.Mime.MediaTypeNames;
+
+public class BTreeNode<T> where T : IBTreeValue
 {
     public BTreeNode<T> parent = null;
     public List<T> keys = new List<T>();
@@ -21,6 +23,33 @@
         return !IsLeaf();
     }
 
+    public void Save(BinaryWriter bw)
+    {
+        bw.Write(keys.Count);
+        foreach (T t in keys)
+            t.Save(bw);
+        bw.Write(children.Count);
+        foreach (BTreeNode<T> n in children)
+            n.Save(bw);
+    }
+
+    public BTreeNode<T> Load(BinaryReader br, T dummy)
+    {
+        BTreeNode<T> n = new BTreeNode<T>();
+        int keyCount = br.ReadInt32();
+        for (int i = 0; i < keyCount; i++)
+            n.keys.Add((T)dummy.Load(br));
+        int childrenCount = br.ReadInt32();
+        for (int i = 0; i < childrenCount; i++)
+        {
+            BTreeNode<T> child = Load(br, dummy);
+            child.parent = this;
+            n.children.Add(child);
+        }
+
+        return n;
+    }
+
     public override string ToString()
     {
         string s = "[";
@@ -37,10 +66,15 @@
     }
 }
 
-public class BTree<T> where T : IComparable<T>
+public class BTree<T> where T : IBTreeValue
 {
     public int t;
     public BTreeNode<T> root = null;
+
+    public BTree()
+    {
+
+    }
 
     public BTree(int t)
     {
@@ -359,6 +393,31 @@ public class BTree<T> where T : IComparable<T>
         nodeStringByLevel[level].Add(currentNodeString);
 
         return childrenWidth >= currentNodeString.Length ? childrenWidth : currentNodeString.Length;
+    }
+
+    public void Save(BinaryWriter bw)
+    {
+        bw.Write(t);
+        if (root == null)
+            bw.Write(false);
+        else
+        {
+            bw.Write(true);
+            root.Save(bw);
+        }
+    }
+
+    public static BTree<T> Load(BinaryReader br, T dummy)
+    {
+        BTree<T> tree = new BTree<T>();
+
+        tree.t = br.ReadInt32();
+        bool hasRoot = br.ReadBoolean();
+
+        if (hasRoot)
+            tree.root = new BTreeNode<T>().Load(br, dummy);
+
+        return tree;
     }
 
     public override string ToString()

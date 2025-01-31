@@ -1,6 +1,14 @@
 ﻿using System.Diagnostics;
 
-public class CustomClass2 : IComparable<CustomClass2>
+public interface IBTreeValue
+{
+    int CompareTo(IBTreeValue? other);
+    string ToString();
+    void Save(BinaryWriter bw);
+    IBTreeValue Load(BinaryReader br);
+}
+
+public class CustomClass2 : IBTreeValue
 {
     public int value = 0;
 
@@ -14,20 +22,30 @@ public class CustomClass2 : IComparable<CustomClass2>
         this.value = value;
     }
 
-    public int CompareTo(CustomClass2? other)
+    public int CompareTo(IBTreeValue? other)
     {
         if (other == null)
             return 0;
 
-        if (value < other.value)
+        if (value < ((CustomClass2)other).value)
             return -1;
-        else if (value == other.value)
+        else if (value == ((CustomClass2)other).value)
             return 0;
         else
             return 1;
     }
 
-    public override string ToString()
+    public void Save(BinaryWriter bw)
+    {
+
+    }
+
+    public IBTreeValue Load(BinaryReader br)
+    {
+        return null;
+    }
+
+    public string ToString()
     {
         return "" + value;
     }
@@ -195,10 +213,85 @@ public class Ut
         CheckBTreeValidity3_CheckOrder(tree);
     }
 
+    public class SaveLoadTest : IBTreeValue
+    {
+        public int intValue = 0;
+        public string strValue = "";
+
+        public SaveLoadTest()
+        {
+
+        }
+
+        public SaveLoadTest(int intValue, string strValue)
+        {
+            this.intValue = intValue;
+            this.strValue = strValue;
+        }
+
+        public int CompareTo(IBTreeValue? other)
+        {
+            if (other == null)
+                return 0;
+
+            if (intValue < ((SaveLoadTest)other).intValue)
+                return -1;
+            else if (intValue == ((SaveLoadTest)other).intValue)
+                return strValue.CompareTo(((SaveLoadTest)other).strValue);
+            else
+                return 1;
+        }
+
+        public void Save(BinaryWriter bw)
+        {
+            bw.Write(intValue);
+            bw.Write(strValue);
+        }
+
+        public IBTreeValue Load(BinaryReader br)
+        {
+            SaveLoadTest ret = new SaveLoadTest();
+            ret.intValue = br.ReadInt32();
+            ret.strValue = br.ReadString();
+
+            return ret;
+        }
+
+        public string ToString()
+        {
+            return "" + intValue +"(" + strValue + ")";
+        }
+    }
+
+    private static void TestSave()
+    {
+        BTree<SaveLoadTest> tree = new BTree<SaveLoadTest>(2);
+
+        for (int i = 100; i >= 1; i--)
+            tree.Insert(new SaveLoadTest(i, ((char)('A' + i)).ToString()));
+
+        Console.WriteLine(tree.ToString());
+
+        using (BinaryWriter bw = new BinaryWriter(File.Open("../../../SaveLoadUt.bt", FileMode.Create)))
+        {
+            tree.Save(bw);
+        }
+
+        BTree<SaveLoadTest> loadedTree;
+        using (BinaryReader br = new BinaryReader(File.Open("../../../SaveLoadUt.bt", FileMode.Open)))
+        {
+            loadedTree = BTree<SaveLoadTest>.Load(br, new SaveLoadTest());
+        }
+
+        Check(tree.ToString() == loadedTree.ToString());
+
+    }
+
     public static void Test()
     {
         TestInsert();
         TestFind();
         TestDelete();
+        TestSave();
     }
 }
