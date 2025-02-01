@@ -12,6 +12,11 @@
         this.value = value;
     }
 
+    public IComparable GetKey()
+    {
+        return value;
+    }
+
     public int CompareTo(IBTreeValue? other)
     {
         if (other == null)
@@ -47,6 +52,7 @@ public class Program
     {
         MainUt.Ut();
 
+        /*
         BTree<CustomClass> tree = new BTree<CustomClass>(2);
 
         for (int i = 0; i < 28; i++)
@@ -64,6 +70,6 @@ public class Program
         tree.Delete(new CustomClass(11));
         Console.WriteLine(tree.Find(new CustomClass(11)).Count);
 
-        Console.WriteLine(tree);
+        Console.WriteLine(tree);*/
     }
 }
