@@ -19,6 +19,11 @@ public class CustomClass3 : IBPlusTreeValue
         return value;
     }
 
+    public IBPlusTreeValue CloneKeyOnly()
+    {
+        return new CustomClass3(value);
+    }
+
     public object GetData()
     {
         return value;
@@ -50,12 +55,10 @@ public class BPlusTreeUt
         Trace.Assert(b);
     }
 
-
-
     private static void TestBPlusTreeInsert()
     {
         BPlusTree tree = new BPlusTree(2);
-        for (int i = 4; i >= 1; i--)
+        for (int i = 20; i >= 1; i--)
             tree.Insert(new CustomClass3(i));
 
         Console.Write(tree);

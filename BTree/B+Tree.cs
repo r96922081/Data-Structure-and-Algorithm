@@ -1,6 +1,7 @@
 ﻿public interface IBPlusTreeValue
 {
     IComparable GetKey();
+    IBPlusTreeValue CloneKeyOnly();
     object GetData();
     string ToString();
 }
@@ -8,6 +9,8 @@
 public class BPlusTreeNode
 {
     public BPlusTreeNode parent = null;
+    public BPlusTreeNode left = null;
+    public BPlusTreeNode right = null;
     public List<IBPlusTreeValue> keys = new List<IBPlusTreeValue>();
     public List<BPlusTreeNode> children = new List<BPlusTreeNode>();
 
@@ -144,11 +147,21 @@ public class BPlusTree
     {
         IBPlusTreeValue key = node.keys[t];
 
-        BPlusTreeNode left = new BPlusTreeNode(node.keys.GetRange(0, t));
-        BPlusTreeNode right = new BPlusTreeNode(node.keys.GetRange(t + 1, t - 1));
+        BPlusTreeNode left = null;
+        BPlusTreeNode right = null;
 
-        if (node.children.Count > 0)
+        // leaf
+        if (node.children.Count == 0)
         {
+            left = new BPlusTreeNode(node.keys.GetRange(0, t));
+            right = new BPlusTreeNode(node.keys.GetRange(t, t));
+            key = key.CloneKeyOnly();
+        }
+        else // internal node works in the same way as BTree
+        {
+            left = new BPlusTreeNode(node.keys.GetRange(0, t));
+            right = new BPlusTreeNode(node.keys.GetRange(t + 1, t - 1));
+
             left.children.AddRange(node.children.GetRange(0, t + 1));
             right.children.AddRange(node.children.GetRange(t + 1, t));
 

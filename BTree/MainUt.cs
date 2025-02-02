@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
-
-public class MainUt
+﻿public class MainUt
 {
     public static void Ut()
     {
-        BTreeUt.Ut();
-        //BPlusTreeUt.Ut();
+        //BTreeUt.Ut();
+        BPlusTreeUt.Ut();
     }
 }
