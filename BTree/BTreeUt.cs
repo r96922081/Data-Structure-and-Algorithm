@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-public class CustomClass2: IBTreeValue
+public class CustomClass2 : IBTreeValue
 {
     public int value = 0;
 
@@ -263,13 +263,13 @@ public class BTreeUt
 
         Console.WriteLine(tree.ToString());
 
-        using (BinaryWriter bw = new BinaryWriter(File.Open("../../../SaveLoadUt.bt", FileMode.Create)))
+        using (BinaryWriter bw = new BinaryWriter(File.Open("../../../SaveLoadUt.btree", FileMode.Create)))
         {
             tree.Save(bw);
         }
 
         BTree loadedTree;
-        using (BinaryReader br = new BinaryReader(File.Open("../../../SaveLoadUt.bt", FileMode.Open)))
+        using (BinaryReader br = new BinaryReader(File.Open("../../../SaveLoadUt.btree", FileMode.Open)))
         {
             loadedTree = BTree.Load(br, new SaveLoadTest());
         }
