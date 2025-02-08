@@ -79,28 +79,6 @@ public class BPlusTree
         FindLeafToInsert(root, key);
     }
 
-    private BPlusTreeNode MergeNode(BPlusTreeNode node, int keyIndex)
-    {
-        BPlusTreeNode mergedNode = new BPlusTreeNode();
-        mergedNode.keys.AddRange(node.children[keyIndex].keys);
-        mergedNode.keys.Add(node.keys[keyIndex]);
-        mergedNode.keys.AddRange(node.children[keyIndex + 1].keys);
-        mergedNode.children.AddRange(node.children[keyIndex].children);
-        mergedNode.children.AddRange(node.children[keyIndex + 1].children);
-        mergedNode.parent = node;
-
-        node.keys.RemoveAt(keyIndex);
-        node.children.RemoveAt(keyIndex + 1);
-        node.children.RemoveAt(keyIndex);
-
-        node.children.Insert(keyIndex, mergedNode);
-
-        if (node == root && node.keys.Count == 0)
-            root = mergedNode;
-
-        return mergedNode;
-    }
-
     private void InsertUpward(BPlusTreeNode node, IBPlusTreeData key, BPlusTreeNode left, BPlusTreeNode right)
     {
         int i = GetKeyInsertPosition(node, key);
@@ -346,13 +324,40 @@ public class BPlusTree
         if (node.IsLeaf())
             return DeleteFromLeaf(node, key);
 
-        int childIndex = 0;
-        while (childIndex < node.keys.Count && key.CompareTo(node.keys[childIndex].GetKey()) >= 0)
-            childIndex++;
+        int firstChildIndex = 0;
+        int secondChildIndex = -1;
+
+        while (firstChildIndex < node.keys.Count && key.CompareTo(node.keys[firstChildIndex].GetKey()) >= 0)
+        {
+            // Consider both side if equal  
+            //        [2]
+            //   [1]      [2]
+            // [0]  [2] [2]  [3]
+
+            if (key.CompareTo(node.keys[firstChildIndex].GetKey()) == 0)
+            {
+                secondChildIndex = firstChildIndex + 1;
+                break;
+            }
+
+            firstChildIndex++;
+        }
+
+        int childIndex = -1;
+
+        if (DeleteInternal(node.children[firstChildIndex], key))
+        {
+            childIndex = firstChildIndex;
+        }
+        else if (secondChildIndex != -1 && DeleteInternal(node.children[secondChildIndex], key))
+        {
+            childIndex = secondChildIndex;
+        }
+
+        if (childIndex == -1)
+            return false;
 
         BPlusTreeNode childNode = node.children[childIndex];
-        if (DeleteInternal(childNode, key) == false)
-            return false;
 
         if (childNode.keys.Count >= t - 1)
             return true;
@@ -374,7 +379,7 @@ public class BPlusTree
                 leftSibling.keys.AddRange(childNode.keys);
                 leftSibling.children.AddRange(childNode.children);
                 node.keys.RemoveAt(node.keys.Count - 1);
-                node.children.RemoveAt(node.keys.Count);
+                node.children.RemoveAt(node.children.Count - 1);
 
                 // root case
                 if (node == root && node.keys.Count == 0)

@@ -151,13 +151,14 @@ public class BPlusTreeUt
         for (int i = 0; i < dataCount; i++)
             tree.Insert(new CustomClass3(i));
 
-        Console.WriteLine(tree);
+        //Console.WriteLine(tree);
 
         if (order == DeleteOrder.Ascending)
         {
             for (int i = 0; i < dataCount; i++)
             {
                 int count = tree.Delete(i);
+                //Console.WriteLine(tree);
                 Check(count == 1);
                 CheckBPlusTreeValidity(tree, dataCount - i - 1);
             }
@@ -167,28 +168,39 @@ public class BPlusTreeUt
             for (int i = dataCount - 1; i >= 0; i--)
             {
                 int count = tree.Delete(i);
-                Console.WriteLine(tree);
+                //Console.WriteLine(tree);
                 Check(count == 1);
                 CheckBPlusTreeValidity(tree, i);
             }
         }
         else if (order == DeleteOrder.Random)
         {
-            List<int> values = new List<int>();
-            for (int i = 0; i < dataCount; i++)
-                values.Add(i);
-            Random random = new Random(0);
-
-            int tempDataCount = dataCount;
-
-            while (values.Count > 0)
+            int iteration = 0;
+            for (int randomCount = 0; randomCount < 1000 * 100; randomCount += 1000)
             {
-                int valueIndex = random.Next() % values.Count;
-                int count = tree.Delete(values[valueIndex]);
-                tempDataCount--;
-                Check(count == 1);
-                values.RemoveAt(valueIndex);
-                CheckBPlusTreeValidity(tree, tempDataCount);
+                //Console.WriteLine("iteration = " + iteration++);
+
+                tree = new BPlusTree(t);
+                for (int i = 0; i < dataCount; i++)
+                    tree.Insert(new CustomClass3(i));
+
+                List<int> values = new List<int>();
+                for (int i = 0; i < dataCount; i++)
+                    values.Add(i);
+                Random random = new Random(0);
+
+                int tempDataCount = dataCount;
+
+                while (values.Count > 0)
+                {
+                    int valueIndex = random.Next() % values.Count;
+                    int count = tree.Delete(values[valueIndex]);
+                    //Console.WriteLine(tree);
+                    tempDataCount--;
+                    Check(count == 1);
+                    values.RemoveAt(valueIndex);
+                    CheckBPlusTreeValidity(tree, tempDataCount);
+                }
             }
         }
 
@@ -200,12 +212,20 @@ public class BPlusTreeUt
         DeleteInternal(2, 1, DeleteOrder.Ascending);
         DeleteInternal(2, 4, DeleteOrder.Ascending);
         DeleteInternal(2, 5, DeleteOrder.Ascending);
+        DeleteInternal(2, 10, DeleteOrder.Ascending);
         DeleteInternal(2, 100, DeleteOrder.Ascending);
 
         DeleteInternal(2, 1, DeleteOrder.Descending);
         DeleteInternal(2, 4, DeleteOrder.Descending);
         DeleteInternal(2, 5, DeleteOrder.Descending);
+        DeleteInternal(2, 10, DeleteOrder.Descending);
         DeleteInternal(2, 100, DeleteOrder.Descending);
+
+        DeleteInternal(2, 1, DeleteOrder.Random);
+        DeleteInternal(2, 4, DeleteOrder.Random);
+        DeleteInternal(2, 5, DeleteOrder.Random);
+        DeleteInternal(2, 10, DeleteOrder.Random);
+        DeleteInternal(2, 100, DeleteOrder.Random);
     }
 
     private static void TestBPlusTreeInsert()
@@ -241,8 +261,6 @@ public class BPlusTreeUt
         CheckBPlusTreeValidity3_CheckOrder(tree);
         CheckBPlusTreeValidity4_CheckLink(tree, dataCount);
     }
-
-
 
     private static void CheckBPlusTreeValidity1_KeyAndChildCount(BPlusTree tree)
     {
