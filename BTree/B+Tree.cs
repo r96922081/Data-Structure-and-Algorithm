@@ -67,6 +67,9 @@ public class BPlusTree
 
     public void Insert(IBPlusTreeData key)
     {
+        if (t < 2)
+            throw new Exception();
+
         if (root == null)
         {
             BPlusTreeNode node = new BPlusTreeNode();
@@ -238,8 +241,6 @@ public class BPlusTree
 
     private List<IBPlusTreeData> FindInternal(BPlusTreeNode node, IComparable key)
     {
-        List<IBPlusTreeData> found = new List<IBPlusTreeData>();
-
         while (node != null && !node.IsLeaf())
         {
             int childIndex = 0;
@@ -254,7 +255,9 @@ public class BPlusTree
             keyIndex++;
 
         if (keyIndex >= node.keys.Count || key.CompareTo(node.keys[keyIndex].GetKey()) != 0)
-            return found;
+            return new List<IBPlusTreeData>();
+
+        List<IBPlusTreeData> found = new List<IBPlusTreeData>();
 
         IBPlusTreeData firstFound = node.keys[keyIndex];
 
@@ -281,6 +284,180 @@ public class BPlusTree
         }
 
         return found;
+    }
+
+    public int Delete(IComparable key)
+    {
+        int count = 0;
+        while (DeleteInternal(root, key))
+            count++;
+
+        return count;
+    }
+
+    private bool DeleteFromLeaf(BPlusTreeNode node, IComparable key)
+    {
+        int index = 0;
+        for (; index < node.keys.Count; index++)
+        {
+            if (key.CompareTo(node.keys[index].GetKey()) < 0)
+                return false;
+
+            if (key.CompareTo(node.keys[index].GetKey()) == 0)
+                break;
+        }
+        if (index == node.keys.Count)
+            return false;
+
+        IBPlusTreeData left = node.keys[index].leftData;
+        IBPlusTreeData right = node.keys[index].rightData;
+
+        if (left == null && right == null)
+        {
+
+        }
+        else if (left != null && right != null)
+        {
+            left.rightData = right;
+            right.leftData = left;
+        }
+        else if (left != null && right == null)
+        {
+            left.rightData = null;
+        }
+        else if (left == null && right != null)
+        {
+            right.leftData = null;
+        }
+
+        node.keys.RemoveAt(index);
+
+        if (node == root && node.keys.Count == 0)
+            root = null;
+
+        return true;
+    }
+
+    private bool DeleteInternal(BPlusTreeNode node, IComparable key)
+    {
+        if (node == null)
+            return false;
+
+        if (node.IsLeaf())
+            return DeleteFromLeaf(node, key);
+
+        int childIndex = 0;
+        while (childIndex < node.keys.Count && key.CompareTo(node.keys[childIndex].GetKey()) >= 0)
+            childIndex++;
+
+        BPlusTreeNode childNode = node.children[childIndex];
+        if (DeleteInternal(childNode, key) == false)
+            return false;
+
+        if (childNode.keys.Count >= t - 1)
+            return true;
+
+        if (childIndex == node.keys.Count)
+        {
+            BPlusTreeNode leftSibling = node.children[childIndex - 1];
+
+            // merge
+            if (leftSibling.keys.Count == t - 1)
+            {
+                if (!leftSibling.IsLeaf())
+                {
+                    BPlusTreeNode max = leftSibling.children[leftSibling.children.Count - 1];
+                    while (!max.IsLeaf())
+                        max = max.children[max.children.Count - 1];
+                    leftSibling.keys.Add(max.keys[max.keys.Count - 1].CloneKeyOnly());
+                }
+                leftSibling.keys.AddRange(childNode.keys);
+                leftSibling.children.AddRange(childNode.children);
+                node.keys.RemoveAt(node.keys.Count - 1);
+                node.children.RemoveAt(node.keys.Count);
+
+                // root case
+                if (node == root && node.keys.Count == 0)
+                    root = leftSibling;
+            }
+            // borrow from left
+            else
+            {
+                if (leftSibling.IsLeaf())
+                {
+                    childNode.keys.Insert(0, leftSibling.keys[leftSibling.keys.Count - 1]);
+
+                    node.keys[childIndex - 1] = childNode.keys[0].CloneKeyOnly();
+
+                    leftSibling.keys.RemoveAt(leftSibling.keys.Count - 1);
+                }
+                else
+                {
+                    BPlusTreeNode max = leftSibling.children[leftSibling.children.Count - 1];
+                    while (!max.IsLeaf())
+                        max = max.children[max.children.Count - 1];
+                    childNode.keys.Insert(0, max.keys[max.keys.Count - 1].CloneKeyOnly());
+                    childNode.children.Insert(0, leftSibling.children[leftSibling.children.Count - 1]);
+
+                    node.keys[childIndex - 1] = leftSibling.keys[leftSibling.keys.Count - 1];
+
+                    leftSibling.children.RemoveAt(leftSibling.children.Count - 1);
+                    leftSibling.keys.RemoveAt(leftSibling.keys.Count - 1);
+                }
+            }
+        }
+        else
+        {
+            BPlusTreeNode rightSibling = node.children[childIndex + 1];
+
+            // merge
+            if (rightSibling.keys.Count == t - 1)
+            {
+                if (!rightSibling.IsLeaf())
+                {
+                    BPlusTreeNode min = rightSibling.children[0];
+                    while (!min.IsLeaf())
+                        min = min.children[0];
+                    rightSibling.keys.Insert(0, min.keys[0].CloneKeyOnly());
+                }
+
+                rightSibling.keys.InsertRange(0, childNode.keys);
+                rightSibling.children.InsertRange(0, childNode.children);
+                node.keys.RemoveAt(childIndex);
+                node.children.RemoveAt(childIndex);
+
+                // root case
+                if (node == root && node.keys.Count == 0)
+                    root = rightSibling;
+            }
+            // borrow from right
+            else
+            {
+                if (rightSibling.IsLeaf())
+                {
+                    childNode.keys.Add(rightSibling.keys[0]);
+
+                    node.keys[childIndex] = rightSibling.keys[1].CloneKeyOnly();
+
+                    rightSibling.keys.RemoveAt(0);
+                }
+                else
+                {
+                    BPlusTreeNode min = rightSibling.children[0];
+                    while (!min.IsLeaf())
+                        min = min.children[0];
+                    childNode.keys.Add(min.keys[0].CloneKeyOnly());
+                    childNode.children.Add(rightSibling.children[0]);
+
+                    node.keys[childIndex] = rightSibling.keys[0];
+
+                    rightSibling.children.RemoveAt(0);
+                    rightSibling.keys.RemoveAt(0);
+                }
+            }
+        }
+
+        return true;
     }
 
     private int getString(int level, BPlusTreeNode currentNode, List<List<string>> nodeStringByLevel)

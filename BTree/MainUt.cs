@@ -2,7 +2,7 @@
 {
     public static void Ut()
     {
-        //BTreeUt.Ut();
+        BTreeUt.Ut();
         BPlusTreeUt.Ut();
     }
 }

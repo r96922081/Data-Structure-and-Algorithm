@@ -127,56 +127,65 @@ public class BTreeUt
         }
     }
 
+    private static void CheckBTreeValidity1_KeyAndChildCount(BTree tree)
+    {
+        CheckBTreeValidity1_KeyAndChildCountInternal(tree, tree.root);
+    }
+
     private static void CheckBTreeValidity1_KeyAndChildCountInternal(BTree tree, BTreeNode n)
     {
         if (n == null)
             return;
 
-        Check(tree.t - 1 <= n.keys.Count && n.keys.Count <= 2 * tree.t - 1);
+        if (n != tree.root)
+            Check(tree.t - 1 <= n.keys.Count && n.keys.Count <= 2 * tree.t - 1);
 
         if (n.children.Count != 0)
             Check(n.keys.Count + 1 == n.children.Count);
+
+        foreach (BTreeNode child in n.children)
+            CheckBTreeValidity1_KeyAndChildCountInternal(tree, child);
     }
 
-    private static void CheckBTreeValidity1_KeyAndChildCount(BTree tree)
-    {
-        foreach (BTreeNode n in tree.root.children)
-            CheckBTreeValidity1_KeyAndChildCountInternal(tree, n);
-    }
-
-    private static int CheckBTreeValidity2_leafDepthInternal(BTreeNode n, int prevLeafDepth, int FirstLeafDepth)
+    private static void CheckBTreeValidity2_leafDepthInternal(BTreeNode n, int prevLeafDepth, int FirstLeafDepth)
     {
         if (n.IsLeaf())
-        {
-            if (FirstLeafDepth != -1)
-                Check(prevLeafDepth + 1 == FirstLeafDepth);
-
-            return prevLeafDepth + 1;
-        }
+            Check(prevLeafDepth == FirstLeafDepth);
         else
         {
-            foreach (BTreeNode n2 in n.children)
-                FirstLeafDepth = CheckBTreeValidity2_leafDepthInternal(n2, prevLeafDepth + 1, FirstLeafDepth);
-
-            return FirstLeafDepth;
+            foreach (BTreeNode child in n.children)
+                CheckBTreeValidity2_leafDepthInternal(child, prevLeafDepth + 1, FirstLeafDepth);
         }
-
     }
 
     private static void CheckBTreeValidity2_leafDepth(BTree tree)
     {
-        CheckBTreeValidity2_leafDepthInternal(tree.root, 0, -1);
+        if (tree.root == null)
+            return;
+
+        BTreeNode firstChild = tree.root;
+        int depth = 0;
+        while (firstChild.children.Count != 0)
+        {
+            firstChild = firstChild.children[0];
+            depth++;
+        }
+
+        CheckBTreeValidity2_leafDepthInternal(tree.root, 0, depth);
     }
 
     private static IBTreeValue CheckBTreeValidity3_CheckOrderInternal(BTreeNode node, IBTreeValue prevValue)
     {
-        for (int i = 0; i < node.keys.Count; i++)
+        for (int i = 0; i < node.children.Count; i++)
         {
             if (node.IsInternal())
                 prevValue = CheckBTreeValidity3_CheckOrderInternal(node.children[i], prevValue);
 
-            Check(node.keys[i].GetKey().CompareTo(prevValue.GetKey()) >= 0);
-            prevValue = node.keys[i];
+            if (i < node.keys.Count)
+            {
+                Check(node.keys[i].GetKey().CompareTo(prevValue.GetKey()) >= 0);
+                prevValue = node.keys[i];
+            }
         }
 
         return prevValue;
