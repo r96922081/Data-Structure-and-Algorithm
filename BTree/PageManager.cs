@@ -110,7 +110,7 @@ public class Page
         freeSlotCount++;
     }
 
-    public RecordBufferWriter Writer(int slotId)
+    public RecordBufferWriter GetWriter(int slotId)
     {
         int headerSize = 16;
         return new RecordBufferWriter(buffer, headerSize + slotId * recordSize, recordSize);
@@ -159,6 +159,7 @@ public class PageManager
     private int streamStartPos;
 
     private int pageSize = -1;
+    private int pageCount = -1;
     private List<Page> pages = new List<Page>();
     private Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
 
@@ -186,6 +187,34 @@ public class PageManager
 
         foreach (PageType p in pageTypes)
             pm.pageTypes.Add(p.type, p);
+
+        return pm;
+    }
+
+    public static PageManager Load(FileStream fs, int streamStartPos)
+    {
+        PageManager pm = new PageManager();
+        pm.fs = fs;
+        pm.streamStartPos = streamStartPos;
+
+        using (BinaryReader r = new BinaryReader(fs, System.Text.Encoding.UTF8, leaveOpen: true))
+        {
+            r.BaseStream.Position = streamStartPos;
+            pm.pageCount = r.ReadInt32();
+            pm.pageSize = r.ReadInt32();
+
+            int pageTypeCount = r.ReadInt32();
+            for (int i = 0; i < pageTypeCount; i++)
+                pm.pages.Add(null);
+
+            Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
+            for (int i = 0; i < pageTypeCount; i++)
+            {
+                int type = r.ReadInt32();
+                int size = r.ReadInt32();
+                pageTypes.Add(type, new PageType(type, size));
+            }
+        }
 
         return pm;
     }
@@ -218,7 +247,14 @@ public class PageManager
 
     public RecordBufferWriter GetRecordBufferWriter(RecordId id)
     {
-        return pages[id.pageId].Writer(id.slotId);
+        Page p = pages[id.pageId];
+
+        if (p == null)
+        {
+            TODO here
+        }
+
+        return p.GetWriter(id.slotId);
     }
 
     private Page NewPage(int pageType)
@@ -227,14 +263,17 @@ public class PageManager
 
         Page page = new Page(pageType, pages.Count, pageSize, type.recordSize);
         pages.Add(page);
+        pageCount++;
 
         return page;
     }
 
     public void Flush()
     {
-        using (BinaryWriter w = new BinaryWriter(fs))
+        using (BinaryWriter w = new BinaryWriter(fs, System.Text.Encoding.UTF8, leaveOpen: true))
         {
+            fs.Seek(streamStartPos, SeekOrigin.Begin);
+
             w.Write(pages.Count);
             w.Write(pageSize);
             w.Write(pageTypes.Count);
@@ -259,17 +298,18 @@ public class PageManager
 
     public static void Test()
     {
-        PageType t1 = new PageType(1, 10);
-
         string filePath = "../../../UtFiles/PageManagerSave1.bin";
 
         using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
         {
-            fs.WriteByte(0xBE);
-            fs.WriteByte(0xEF);
+            fs.WriteByte(0xAC);
+            fs.WriteByte(0xCE);
+
+            PageType t1 = new PageType(1, 10);
+            PageType t2 = new PageType(2, 20);
 
             int pageSize = 160;
-            PageManager pm = PageManager.Create(fs, 4, pageSize, new List<PageType>() { t1 });
+            PageManager pm = PageManager.Create(fs, 2, pageSize, new List<PageType>() { t1, t2 });
             RecordId r1 = pm.AllocateRecord(1);
             RecordBufferWriter w = pm.GetRecordBufferWriter(r1);
             w.WriteInt(7);
@@ -282,9 +322,21 @@ public class PageManager
             w.WriteInt(4);
             w.WriteInt(5);
 
+            RecordId r3 = pm.AllocateRecord(2);
+            w = pm.GetRecordBufferWriter(r3);
+            w.WriteInt(4);
+            w.WriteInt(5);
+            w.WriteInt(6);
+
             pm.Flush();
         }
 
+        using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        {
+            fs.WriteByte(0xAC);
+            fs.WriteByte(0xCE);
 
+            PageManager pm = PageManager.Load(fs, 2);
+        }
     }
 }
