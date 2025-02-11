@@ -374,27 +374,26 @@ public class BPlusTreePagedUt
         string filePath = "../../../UtFiles/PageManagerSave1.bin";
         RecordStreamWriter w = null;
         RecordStreamReader r = null;
-        RecordId rid = null;
 
         PageType t1 = new PageType((int)PageTypeEnum.type1, 20);
         PageType t2 = new PageType((int)PageTypeEnum.type2, 30);
 
         int pageSize = 160;
         PageManager pm = PageManager.Create(filePath, pageSize, new List<PageType>() { t1, t2 });
-        rid = pm.AllocateRecord((int)PageTypeEnum.type1);
-        w = pm.GetRecordStreamWriter(rid);
+        RecordId rid1 = pm.AllocateRecord((int)PageTypeEnum.type1);
+        w = pm.GetRecordStreamWriter(rid1);
         w.WriteInt(7);
         w.WriteInt(8);
         w.WriteInt(9);
 
-        rid = pm.AllocateRecord((int)PageTypeEnum.type1);
-        w = pm.GetRecordStreamWriter(rid);
+        RecordId rid2 = pm.AllocateRecord((int)PageTypeEnum.type1);
+        w = pm.GetRecordStreamWriter(rid2);
         w.WriteInt(3);
         w.WriteInt(4);
         w.WriteInt(5);
 
-        rid = pm.AllocateRecord((int)PageTypeEnum.type2);
-        w = pm.GetRecordStreamWriter(rid);
+        RecordId rid3 = pm.AllocateRecord((int)PageTypeEnum.type2);
+        w = pm.GetRecordStreamWriter(rid3);
         w.WriteInt(4);
         w.WriteInt(5);
         w.WriteInt(6);
@@ -402,15 +401,15 @@ public class BPlusTreePagedUt
         pm.Close();
 
         PageManager pm2 = PageManager.Load(filePath);
-        r = pm2.GetRecordStreamReader(new RecordId(0, 0));
+        r = pm2.GetRecordStreamReader(rid1);
         Check(r.ReadInt() == 7);
         Check(r.ReadInt() == 8);
         Check(r.ReadInt() == 9);
-        r = pm2.GetRecordStreamReader(new RecordId(0, 1));
+        r = pm2.GetRecordStreamReader(rid2);
         Check(r.ReadInt() == 3);
         Check(r.ReadInt() == 4);
         Check(r.ReadInt() == 5);
-        r = pm2.GetRecordStreamReader(new RecordId(1, 0));
+        r = pm2.GetRecordStreamReader(rid3);
         Check(r.ReadInt() == 4);
         Check(r.ReadInt() == 5);
         Check(r.ReadInt() == 6);
