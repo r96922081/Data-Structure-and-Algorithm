@@ -236,6 +236,7 @@ public class PageManager
     private Dictionary<int, Page> pages = new Dictionary<int, Page>();
     private Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
     private int headerSize = -1;
+    private int headerPageType = -1;
 
     /*
 
@@ -259,10 +260,16 @@ public class PageManager
         pm.fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
         pm.pageSize = pageSize;
 
-        foreach (PageType p in pageTypes)
-            pm.pageTypes.Add(p.type, p);
+        pm.pageTypes.Add(-1, new PageType(-1, pageSize / 2));
 
-        pm.headerSize = 16 + 8 * pageTypes.Count;
+        foreach (PageType p in pageTypes)
+        {
+            if (p.type < 0)
+                throw new Exception("type < 0 are reserved");
+            pm.pageTypes.Add(p.type, p);
+        }
+
+        pm.headerSize = 16 + 8 * pm.pageTypes.Count;
 
         return pm;
     }

@@ -363,7 +363,11 @@ public class BPlusTreePagedUt
         CheckBPlusTreePagedValidity3_CheckOrderInternal(tree.root, new CustomClass4(-1));
     }
 
-
+    private enum PageTypeEnum
+    {
+        type1,
+        type2
+    }
 
     private static void TestPage1()
     {
@@ -372,24 +376,24 @@ public class BPlusTreePagedUt
         RecordReader r = null;
         RecordId rid = null;
 
-        PageType t1 = new PageType(1, 20);
-        PageType t2 = new PageType(2, 30);
+        PageType t1 = new PageType((int)PageTypeEnum.type1, 20);
+        PageType t2 = new PageType((int)PageTypeEnum.type2, 30);
 
         int pageSize = 160;
         PageManager pm = PageManager.Create(filePath, pageSize, new List<PageType>() { t1, t2 });
-        rid = pm.AllocateRecord(1);
+        rid = pm.AllocateRecord((int)PageTypeEnum.type1);
         w = pm.GetRecordBufferWriter(rid);
         w.WriteInt(7);
         w.WriteInt(8);
         w.WriteInt(9);
 
-        rid = pm.AllocateRecord(1);
+        rid = pm.AllocateRecord((int)PageTypeEnum.type1);
         w = pm.GetRecordBufferWriter(rid);
         w.WriteInt(3);
         w.WriteInt(4);
         w.WriteInt(5);
 
-        rid = pm.AllocateRecord(2);
+        rid = pm.AllocateRecord((int)PageTypeEnum.type2);
         w = pm.GetRecordBufferWriter(rid);
         w.WriteInt(4);
         w.WriteInt(5);
