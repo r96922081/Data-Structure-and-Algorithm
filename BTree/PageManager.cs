@@ -10,13 +10,13 @@
     }
 }
 
-public class RecordWriter
+public class RecordStreamWriter
 {
     public byte[] buffer;
     public int currentPos;
     public int size;
 
-    public RecordWriter(byte[] buffer, int currentPos, int size)
+    public RecordStreamWriter(byte[] buffer, int currentPos, int size)
     {
         this.buffer = buffer;
         this.currentPos = currentPos;
@@ -31,13 +31,13 @@ public class RecordWriter
     }
 }
 
-public class RecordReader
+public class RecordStreamReader
 {
     public byte[] buffer;
     public int currentPos;
     public int size;
 
-    public RecordReader(byte[] buffer, int currentPos, int size)
+    public RecordStreamReader(byte[] buffer, int currentPos, int size)
     {
         this.buffer = buffer;
         this.currentPos = currentPos;
@@ -69,7 +69,7 @@ public class PageType
 public class Page
 {
     public int type = -1;
-    public int id = -1;
+    public int index = -1;
     public int pageSize = -1;
     public int recordCount = -1;
     public int recordSize = -1;
@@ -104,7 +104,7 @@ public class Page
     public Page(int pageType, int id, int pageSize, int recordSize)
     {
         type = pageType;
-        this.id = id;
+        this.index = id;
         this.pageSize = pageSize;
         buffer = new byte[pageSize];
         dirty = true;
@@ -142,14 +142,14 @@ public class Page
         freeSlotCount++;
     }
 
-    public RecordWriter GetRecordWriter(int slotId)
+    public RecordStreamWriter GetRecordStreamWriter(int slotId)
     {
-        return new RecordWriter(buffer, headerSize + slotId * recordSize, recordSize);
+        return new RecordStreamWriter(buffer, headerSize + slotId * recordSize, recordSize);
     }
 
-    public RecordReader GetRecordReader(int slotId)
+    public RecordStreamReader GetRecordStreamReader(int slotId)
     {
-        return new RecordReader(buffer, headerSize + slotId * recordSize, recordSize);
+        return new RecordStreamReader(buffer, headerSize + slotId * recordSize, recordSize);
     }
 
     private int WriteInt(int pos, int v)
@@ -196,7 +196,7 @@ public class Page
 
         int pos = 0;
         pos += WriteInt(pos, type);
-        pos += WriteInt(pos, id);
+        pos += WriteInt(pos, index);
         pos += WriteInt(pos, pageSize);
         pos += WriteInt(pos, recordCount);
         pos += WriteInt(pos, recordSize);
@@ -212,7 +212,7 @@ public class Page
 
         int pos = 0;
         pos += p.ReadInt(pos, ref p.type);
-        pos += p.ReadInt(pos, ref p.id);
+        pos += p.ReadInt(pos, ref p.index);
         pos += p.ReadInt(pos, ref p.pageSize);
         pos += p.ReadInt(pos, ref p.recordCount);
         pos += p.ReadInt(pos, ref p.recordSize);
@@ -236,7 +236,6 @@ public class PageManager
     private Dictionary<int, Page> pages = new Dictionary<int, Page>();
     private Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
     private int headerSize = -1;
-    private int headerPageType = -1;
 
     /*
 
@@ -274,11 +273,19 @@ public class PageManager
         return pm;
     }
 
+    public void FlushPage(long beginPos, BinaryWriter bw, Page p)
+    {
+        p.WriteToBuffer();
+        bw.Seek((int)beginPos + p.index * pageSize, SeekOrigin.Begin);
+        bw.Write(p.buffer, 0, p.pageSize);
+        p.dirty = false;
+    }
+
     public void Close()
     {
         using (BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.UTF8, leaveOpen: true))
         {
-            fs.Seek(0, SeekOrigin.Begin);
+            bw.Seek(0, SeekOrigin.Begin);
 
             bw.Write(headerSize);
             bw.Write(pages.Count);
@@ -290,16 +297,15 @@ public class PageManager
                 bw.Write(type.recordSize);
             }
 
-            long beingPos = bw.BaseStream.Position;
+            long beginPos = bw.BaseStream.Position;
 
             for (int i = 0; i < pages.Count; i++)
             {
                 Page page = pages[i];
                 if (page.dirty == false)
                     continue;
-                fs.Seek(beingPos + i * pageSize, SeekOrigin.Begin);
-                page.WriteToBuffer();
-                bw.Write(page.buffer, 0, page.buffer.Length);
+
+                FlushPage(beginPos, bw, page);
             }
         }
 
@@ -337,12 +343,12 @@ public class PageManager
             if (p.type == type && p.freeSlotCount > 0)
             {
                 p.dirty = true;
-                return new RecordId(p.id, p.AllocateSlot());
+                return new RecordId(p.index, p.AllocateSlot());
             }
         }
 
         Page p2 = NewPage(type);
-        return new RecordId(p2.id, p2.AllocateSlot());
+        return new RecordId(p2.index, p2.AllocateSlot());
     }
 
     public void DeleteRecord(RecordId id)
@@ -351,14 +357,14 @@ public class PageManager
         p.FreeSlot(id.slotId);
     }
 
-    public RecordWriter GetRecordBufferWriter(RecordId rid)
+    public RecordStreamWriter GetRecordStreamWriter(RecordId rid)
     {
-        return GetPage(rid.pageId).GetRecordWriter(rid.slotId);
+        return GetPage(rid.pageId).GetRecordStreamWriter(rid.slotId);
     }
 
-    public RecordReader GetRecordBufferReader(RecordId rid)
+    public RecordStreamReader GetRecordStreamReader(RecordId rid)
     {
-        return GetPage(rid.pageId).GetRecordReader(rid.slotId);
+        return GetPage(rid.pageId).GetRecordStreamReader(rid.slotId);
     }
 
     private Page GetPage(int pageId)
@@ -384,7 +390,11 @@ public class PageManager
         PageType type = pageTypes[pageType];
 
         Page page = new Page(pageType, pageCount, pageSize, type.recordSize);
-        pages.Add(page.id, page);
+        pages.Add(page.index, page);
+        byte[] zeros = new byte[pageSize];
+        fs.Seek(0, SeekOrigin.End);
+        fs.Write(zeros, 0, zeros.Length);
+
         pageCount++;
 
         return page;

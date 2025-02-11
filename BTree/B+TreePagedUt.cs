@@ -372,8 +372,8 @@ public class BPlusTreePagedUt
     private static void TestPage1()
     {
         string filePath = "../../../UtFiles/PageManagerSave1.bin";
-        RecordWriter w = null;
-        RecordReader r = null;
+        RecordStreamWriter w = null;
+        RecordStreamReader r = null;
         RecordId rid = null;
 
         PageType t1 = new PageType((int)PageTypeEnum.type1, 20);
@@ -382,19 +382,19 @@ public class BPlusTreePagedUt
         int pageSize = 160;
         PageManager pm = PageManager.Create(filePath, pageSize, new List<PageType>() { t1, t2 });
         rid = pm.AllocateRecord((int)PageTypeEnum.type1);
-        w = pm.GetRecordBufferWriter(rid);
+        w = pm.GetRecordStreamWriter(rid);
         w.WriteInt(7);
         w.WriteInt(8);
         w.WriteInt(9);
 
         rid = pm.AllocateRecord((int)PageTypeEnum.type1);
-        w = pm.GetRecordBufferWriter(rid);
+        w = pm.GetRecordStreamWriter(rid);
         w.WriteInt(3);
         w.WriteInt(4);
         w.WriteInt(5);
 
         rid = pm.AllocateRecord((int)PageTypeEnum.type2);
-        w = pm.GetRecordBufferWriter(rid);
+        w = pm.GetRecordStreamWriter(rid);
         w.WriteInt(4);
         w.WriteInt(5);
         w.WriteInt(6);
@@ -402,15 +402,15 @@ public class BPlusTreePagedUt
         pm.Close();
 
         PageManager pm2 = PageManager.Load(filePath);
-        r = pm2.GetRecordBufferReader(new RecordId(0, 0));
+        r = pm2.GetRecordStreamReader(new RecordId(0, 0));
         Check(r.ReadInt() == 7);
         Check(r.ReadInt() == 8);
         Check(r.ReadInt() == 9);
-        r = pm2.GetRecordBufferReader(new RecordId(0, 1));
+        r = pm2.GetRecordStreamReader(new RecordId(0, 1));
         Check(r.ReadInt() == 3);
         Check(r.ReadInt() == 4);
         Check(r.ReadInt() == 5);
-        r = pm2.GetRecordBufferReader(new RecordId(1, 0));
+        r = pm2.GetRecordStreamReader(new RecordId(1, 0));
         Check(r.ReadInt() == 4);
         Check(r.ReadInt() == 5);
         Check(r.ReadInt() == 6);
