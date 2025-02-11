@@ -4,7 +4,6 @@
     {
         //BTreeUt.Ut();
         //BPlusTreeUt.Ut();
-        //BPlusTreePagedUt.Ut();
-        PageManager.Test();
+        BPlusTreePagedUt.Ut();
     }
 }

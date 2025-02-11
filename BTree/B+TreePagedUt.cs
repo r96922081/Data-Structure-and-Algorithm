@@ -363,138 +363,65 @@ public class BPlusTreePagedUt
         CheckBPlusTreePagedValidity3_CheckOrderInternal(tree.root, new CustomClass4(-1));
     }
 
+
+
+    private static void TestPage1()
+    {
+        string filePath = "../../../UtFiles/PageManagerSave1.bin";
+        RecordWriter w = null;
+        RecordReader r = null;
+        RecordId rid = null;
+
+        PageType t1 = new PageType(1, 20);
+        PageType t2 = new PageType(2, 30);
+
+        int pageSize = 160;
+        PageManager pm = PageManager.Create(filePath, pageSize, new List<PageType>() { t1, t2 });
+        rid = pm.AllocateRecord(1);
+        w = pm.GetRecordBufferWriter(rid);
+        w.WriteInt(7);
+        w.WriteInt(8);
+        w.WriteInt(9);
+
+        rid = pm.AllocateRecord(1);
+        w = pm.GetRecordBufferWriter(rid);
+        w.WriteInt(3);
+        w.WriteInt(4);
+        w.WriteInt(5);
+
+        rid = pm.AllocateRecord(2);
+        w = pm.GetRecordBufferWriter(rid);
+        w.WriteInt(4);
+        w.WriteInt(5);
+        w.WriteInt(6);
+
+        pm.Close();
+
+        PageManager pm2 = PageManager.Load(filePath);
+        r = pm2.GetRecordBufferReader(new RecordId(0, 0));
+        Check(r.ReadInt() == 7);
+        Check(r.ReadInt() == 8);
+        Check(r.ReadInt() == 9);
+        r = pm2.GetRecordBufferReader(new RecordId(0, 1));
+        Check(r.ReadInt() == 3);
+        Check(r.ReadInt() == 4);
+        Check(r.ReadInt() == 5);
+        r = pm2.GetRecordBufferReader(new RecordId(1, 0));
+        Check(r.ReadInt() == 4);
+        Check(r.ReadInt() == 5);
+        Check(r.ReadInt() == 6);
+    }
+
+    public static void TestPage()
+    {
+        TestPage1();
+    }
+
     public static void Ut()
     {
-        //Test1();
-        //Test2();
+        TestPage();
         //TestBPlusTreePagedInsert();
         //TestBPlusTreePagedFind();
         //TestBPlusTreePagedDelete();
     }
-
-    public static void Test1()
-    {
-        string filePath = "data.bin";
-
-        // Data to write
-        int intValue = 12345;
-        char[] charArray = "Hello".ToCharArray();
-        byte[] byteArray = { 1, 2, 3, 4, 5 };
-
-        // Write data to file
-        using (FileStream fs = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-        using (BinaryWriter writer = new BinaryWriter(fs))
-        {
-            writer.Write(intValue);
-            writer.Write(charArray.Length); // Store length of char array
-            writer.Write(charArray);
-            writer.Write(byteArray.Length); // Store length of byte array
-            writer.Write(byteArray);
-        }
-
-        // Read data from file
-        using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-        using (BinaryReader reader = new BinaryReader(fs))
-        {
-            int readInt = reader.ReadInt32();
-
-            int charArrayLength = reader.ReadInt32();
-            char[] readCharArray = reader.ReadChars(charArrayLength);
-
-            int byteArrayLength = reader.ReadInt32();
-            byte[] readByteArray = reader.ReadBytes(byteArrayLength);
-
-            // Display read data
-            Console.WriteLine($"Read Int: {readInt}");
-            Console.WriteLine($"Read Char Array: {new string(readCharArray)}");
-            Console.WriteLine($"Read Byte Array: {BitConverter.ToString(readByteArray)}");
-        }
-
-        byte[] byteArray2 = { 0x39, 0x30, 0x00, 0x00 }; // Example 4-byte array (Little-Endian)
-
-        int result = BitConverter.ToInt32(byteArray2, 0);
-        Console.WriteLine(result);
-    }
-
-    private static void PrintFileIndex(string filePath)
-    {
-        try
-        {
-            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            using (BinaryReader reader = new BinaryReader(fs))
-            {
-                int offset = 0;
-                byte[] buffer = new byte[16];
-
-                while (true)
-                {
-                    int bytesRead = reader.Read(buffer, 0, buffer.Length);
-                    if (bytesRead == 0) break; // Stop when EOF
-
-                    // Print offset
-                    Console.Write($"{offset:X8}: ");
-
-                    // Print hex values
-                    for (int i = 0; i < bytesRead; i++)
-                    {
-                        Console.Write($"{buffer[i]:X2} ");
-                    }
-
-                    // Add spacing if line has less than 16 bytes
-                    for (int i = bytesRead; i < 16; i++)
-                    {
-                        Console.Write("   ");
-                    }
-
-                    // Print ASCII representation
-                    Console.Write(" ");
-                    for (int i = 0; i < bytesRead; i++)
-                    {
-                        char c = (buffer[i] >= 32 && buffer[i] <= 126) ? (char)buffer[i] : '.';
-                        Console.Write(c);
-                    }
-
-                    Console.WriteLine();
-                    offset += bytesRead;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-        }
-    }
-
-    private static void Test2()
-    {
-
-        int number = 12345;
-        char[] charArray = "Hello".ToCharArray();
-
-        // Convert int to byte[]
-        byte[] intBytes = BitConverter.GetBytes(number);
-
-        // Convert char[] to byte[] using BitConverter
-        byte[] charBytes = new byte[charArray.Length * sizeof(char)];
-        Buffer.BlockCopy(charArray, 0, charBytes, 0, charBytes.Length);
-
-        // Combine both byte arrays
-        byte[] combinedBytes = new byte[intBytes.Length + charBytes.Length];
-        Buffer.BlockCopy(intBytes, 0, combinedBytes, 0, intBytes.Length);
-        Buffer.BlockCopy(charBytes, 0, combinedBytes, intBytes.Length, charBytes.Length);
-
-        Console.WriteLine($"Combined Byte Array: {BitConverter.ToString(combinedBytes)}");
-
-        // Extract int back from byte[]
-        int restoredInt = BitConverter.ToInt32(combinedBytes, 0);
-
-        // Extract char[] back from byte[]
-        char[] restoredCharArray = new char[(combinedBytes.Length - intBytes.Length) / sizeof(char)];
-        Buffer.BlockCopy(combinedBytes, intBytes.Length, restoredCharArray, 0, combinedBytes.Length - intBytes.Length);
-
-        Console.WriteLine($"Restored Int: {restoredInt}");
-        Console.WriteLine($"Restored Char Array: {new string(restoredCharArray)}");
-
-    }
-
 }

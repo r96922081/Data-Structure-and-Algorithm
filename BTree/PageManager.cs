@@ -230,7 +230,6 @@ public class Page
 public class PageManager
 {
     private FileStream fs;
-    private int streamStartPos;
 
     private int pageSize = -1;
     private int pageCount = 0;
@@ -254,11 +253,10 @@ public class PageManager
 
      */
 
-    public static PageManager Create(FileStream fs, int streamStartPos, int pageSize, List<PageType> pageTypes)
+    public static PageManager Create(string filePath, int pageSize, List<PageType> pageTypes)
     {
         PageManager pm = new PageManager();
-        pm.fs = fs;
-        pm.streamStartPos = streamStartPos;
+        pm.fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
         pm.pageSize = pageSize;
 
         foreach (PageType p in pageTypes)
@@ -269,11 +267,11 @@ public class PageManager
         return pm;
     }
 
-    public void WriteHeaderAndFlushDirtyPages()
+    public void Close()
     {
         using (BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.UTF8, leaveOpen: true))
         {
-            fs.Seek(streamStartPos, SeekOrigin.Begin);
+            fs.Seek(0, SeekOrigin.Begin);
 
             bw.Write(headerSize);
             bw.Write(pages.Count);
@@ -297,17 +295,17 @@ public class PageManager
                 bw.Write(page.buffer, 0, page.buffer.Length);
             }
         }
+
+        fs.Close();
     }
 
-    public static PageManager Load(FileStream fs, int streamStartPos)
+    public static PageManager Load(string filePath)
     {
         PageManager pm = new PageManager();
-        pm.fs = fs;
-        pm.streamStartPos = streamStartPos;
+        pm.fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
 
-        using (BinaryReader r = new BinaryReader(fs, System.Text.Encoding.UTF8, leaveOpen: true))
+        using (BinaryReader r = new BinaryReader(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true))
         {
-            r.BaseStream.Position = streamStartPos;
             pm.headerSize = r.ReadInt32();
             pm.pageCount = r.ReadInt32();
             pm.pageSize = r.ReadInt32();
@@ -323,11 +321,6 @@ public class PageManager
         }
 
         return pm;
-    }
-
-    public void Close()
-    {
-        fs.Close();
     }
 
     public RecordId AllocateRecord(int type)
@@ -351,21 +344,29 @@ public class PageManager
         p.FreeSlot(id.slotId);
     }
 
-    public RecordWriter GetRecordBufferWriter(RecordId id)
+    public RecordWriter GetRecordBufferWriter(RecordId rid)
     {
-        Page p = pages[id.pageId];
+        return GetPage(rid.pageId).GetRecordWriter(rid.slotId);
+    }
 
-        if (p == null)
-            p = ReadPageFromFile(id.pageId);
+    public RecordReader GetRecordBufferReader(RecordId rid)
+    {
+        return GetPage(rid.pageId).GetRecordReader(rid.slotId);
+    }
 
-        return p.GetRecordWriter(id.slotId);
+    private Page GetPage(int pageId)
+    {
+        if (pages.ContainsKey(pageId))
+            return pages[pageId];
+
+        return ReadPageFromFile(pageId);
     }
 
     private Page ReadPageFromFile(int pageId)
     {
         using (BinaryReader br = new BinaryReader(fs, System.Text.Encoding.UTF8, leaveOpen: true))
         {
-            fs.Seek(streamStartPos + headerSize + pageId * pageSize, SeekOrigin.Begin);
+            fs.Seek(headerSize + pageId * pageSize, SeekOrigin.Begin);
             byte[] buffer = br.ReadBytes(pageSize);
             return Page.ReadFromBuffer(buffer);
         }
@@ -380,68 +381,5 @@ public class PageManager
         pageCount++;
 
         return page;
-    }
-
-    public static void Test()
-    {
-        string filePath = "../../../UtFiles/PageManagerSave1.bin";
-
-        using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
-        {
-            fs.WriteByte(0xAC);
-            fs.WriteByte(0xCE);
-
-            PageType t1 = new PageType(1, 20);
-            PageType t2 = new PageType(2, 30);
-
-            int pageSize = 160;
-            PageManager pm = PageManager.Create(fs, 2, pageSize, new List<PageType>() { t1, t2 });
-            RecordId r1 = pm.AllocateRecord(1);
-            RecordWriter w = pm.GetRecordBufferWriter(r1);
-            w.WriteInt(7);
-            w.WriteInt(8);
-            w.WriteInt(9);
-
-            RecordId r2 = pm.AllocateRecord(1);
-            w = pm.GetRecordBufferWriter(r2);
-            w.WriteInt(3);
-            w.WriteInt(4);
-            w.WriteInt(5);
-
-            Page p = pm.ReadPageFromFile(0);
-            RecordReader r = p.GetRecordReader(1);
-            Console.WriteLine(r.ReadInt());
-            Console.WriteLine(r.ReadInt());
-            Console.WriteLine(r.ReadInt());
-
-            RecordId r3 = pm.AllocateRecord(2);
-            w = pm.GetRecordBufferWriter(r3);
-            w.WriteInt(4);
-            w.WriteInt(5);
-            w.WriteInt(6);
-
-            pm.WriteHeaderAndFlushDirtyPages();
-        }
-
-        using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
-        {
-            PageManager pm = PageManager.Load(fs, 2);
-            Page p = pm.ReadPageFromFile(0);
-            RecordReader r = p.GetRecordReader(0);
-            Console.WriteLine(r.ReadInt());
-            Console.WriteLine(r.ReadInt());
-            Console.WriteLine(r.ReadInt());
-
-            r = p.GetRecordReader(1);
-            Console.WriteLine(r.ReadInt());
-            Console.WriteLine(r.ReadInt());
-            Console.WriteLine(r.ReadInt());
-
-            p = pm.ReadPageFromFile(1);
-            r = p.GetRecordReader(0);
-            Console.WriteLine(r.ReadInt());
-            Console.WriteLine(r.ReadInt());
-            Console.WriteLine(r.ReadInt());
-        }
     }
 }
