@@ -89,7 +89,7 @@
         }
     }
 
-    private static void Ut2()
+    private static void Ut2DecreaseKey()
     {
         MinPriorityQueue<MyKey> q = new MinPriorityQueue<MyKey>();
 
@@ -113,6 +113,38 @@
 
         for (int i = 0; i < 50; i++)
             Check(q.ExtractMin().id == i);
+    }
+
+    private static void Ut2IncreaseKey()
+    {
+        MinPriorityQueue<MyKey> q = new MinPriorityQueue<MyKey>();
+
+        List<MyKey> keys = new List<MyKey>();
+
+        for (int i = 0; i < 100; i++)
+        {
+            MyKey key = new MyKey(i);
+            keys.Add(key);
+            q.Insert(key);
+        }
+
+        for (int i = 0; i < 50; i++)
+        {
+            keys[i].id += 1000;
+            q.IncreaseKey(keys[i]);
+        }
+
+        for (int i = 0; i < 50; i++)
+            Check(q.ExtractMin().id == 50 + i);
+
+        for (int i = 0; i < 50; i++)
+            Check(q.ExtractMin().id == 1000 + i);
+    }
+
+    private static void Ut2()
+    {
+        Ut2DecreaseKey();
+        Ut2IncreaseKey();
     }
 
     public static void Ut()

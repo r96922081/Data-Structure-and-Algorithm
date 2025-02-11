@@ -371,6 +371,9 @@ public class BPlusTreePagedUt
 
     private static void TestPage1()
     {
+        int pageCacheCount = 10;
+        int pageSize = 160;
+
         string filePath = "../../../UtFiles/PageManagerSave1.bin";
         RecordStreamWriter w = null;
         RecordStreamReader r = null;
@@ -378,8 +381,8 @@ public class BPlusTreePagedUt
         PageType t1 = new PageType((int)PageTypeEnum.type1, 20);
         PageType t2 = new PageType((int)PageTypeEnum.type2, 30);
 
-        int pageSize = 160;
-        PageManager pm = PageManager.Create(filePath, pageSize, new List<PageType>() { t1, t2 });
+
+        PageManager pm = PageManager.Create(filePath, pageSize, pageCacheCount, new List<PageType>() { t1, t2 });
         RecordId rid1 = pm.AllocateRecord((int)PageTypeEnum.type1);
         w = pm.GetRecordStreamWriter(rid1);
         w.WriteInt(7);
@@ -415,9 +418,42 @@ public class BPlusTreePagedUt
         Check(r.ReadInt() == 6);
     }
 
+    private static void TestPage2()
+    {
+        int pageCacheCount = 10;
+        int pageSize = 160;
+
+        string filePath = "../../../UtFiles/PageManagerSave2.bin";
+        RecordStreamWriter w = null;
+        RecordStreamReader r = null;
+
+        PageType t1 = new PageType((int)PageTypeEnum.type1, 20);
+
+        PageManager pm = PageManager.Create(filePath, pageSize, pageCacheCount, new List<PageType>() { t1 });
+        RecordId rid1 = pm.AllocateRecord((int)PageTypeEnum.type1);
+        w = pm.GetRecordStreamWriter(rid1);
+        w.WriteInt(7);
+        w.WriteInt(8);
+        w.WriteInt(9);
+
+        pm.DeleteRecord(rid1);
+        RecordId rid2 = pm.AllocateRecord((int)PageTypeEnum.type1);
+        w = pm.GetRecordStreamWriter(rid2);
+        w.WriteInt(2);
+        w.WriteInt(3);
+        w.WriteInt(4);
+
+        Check(rid1.pageId == rid2.pageId && rid1.slotId == rid2.slotId);
+        r = pm.GetRecordStreamReader(rid1);
+        Check(r.ReadInt() == 2);
+        Check(r.ReadInt() == 3);
+        Check(r.ReadInt() == 4);
+    }
+
     public static void TestPage()
     {
         TestPage1();
+        TestPage2();
     }
 
     public static void Ut()

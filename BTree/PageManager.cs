@@ -66,7 +66,7 @@ public class PageType
     }
 }
 
-public class Page
+public class Page : IComparable<Page>
 {
     public int type = -1;
     public int index = -1;
@@ -74,6 +74,8 @@ public class Page
     public int recordCount = -1;
     public int recordSize = -1;
     public int freeSlotCount = -1;
+    public long pageAge = -1;
+    public static long pageAgeCounter = 0;
     public static int headerSize = 24;
 
     public bool[] slotFreeArray = null;
@@ -121,12 +123,14 @@ public class Page
 
     public int AllocateSlot()
     {
+        pageAge = pageAgeCounter++;
         for (int i = 0; i < slotFreeArray.Length; i++)
         {
             if (slotFreeArray[i])
             {
                 slotFreeArray[i] = false;
                 freeSlotCount--;
+                dirty = true;
                 return i;
             }
         }
@@ -134,41 +138,37 @@ public class Page
         throw new Exception();
     }
 
-    public void FreeSlot(int slotId)
+    public void ReleaseSlot(int slotId)
     {
+        pageAge = pageAgeCounter++;
         if (slotFreeArray[slotId] == true)
             throw new Exception();
         slotFreeArray[slotId] = true;
         freeSlotCount++;
+        dirty = true;
     }
 
     public RecordStreamWriter GetRecordStreamWriter(int slotId)
     {
+        pageAge = pageAgeCounter++;
+        dirty = true;
         return new RecordStreamWriter(buffer, headerSize + slotId * recordSize, recordSize);
     }
 
     public RecordStreamReader GetRecordStreamReader(int slotId)
     {
+        pageAge = pageAgeCounter++;
         return new RecordStreamReader(buffer, headerSize + slotId * recordSize, recordSize);
     }
 
-    private int WriteInt(int pos, int v)
+    private int WriteIntToHeader(int pos, int v)
     {
         byte[] bytes = BitConverter.GetBytes(v);
         Buffer.BlockCopy(bytes, 0, buffer, pos, bytes.Length);
         return bytes.Length;
     }
 
-    private int ReadInt(int pos, ref int v)
-    {
-        byte[] bytes = new byte[4];
-        Buffer.BlockCopy(buffer, pos, bytes, 0, bytes.Length);
-        v = BitConverter.ToInt32(bytes, 0);
-
-        return bytes.Length;
-    }
-
-    private int WriteBool(int pos, bool v)
+    private int WriteBoolToHeader(int pos, bool v)
     {
         if (v)
             buffer[pos] = 1;
@@ -178,7 +178,16 @@ public class Page
         return 1;
     }
 
-    private int ReadBool(int pos, ref bool v)
+    private int ReadIntFromHeader(int pos, ref int v)
+    {
+        byte[] bytes = new byte[4];
+        Buffer.BlockCopy(buffer, pos, bytes, 0, bytes.Length);
+        v = BitConverter.ToInt32(bytes, 0);
+
+        return bytes.Length;
+    }
+
+    private int ReadBoolFromHeader(int pos, ref bool v)
     {
         if (buffer[pos] == 1)
             v = true;
@@ -195,15 +204,15 @@ public class Page
         dirty = false;
 
         int pos = 0;
-        pos += WriteInt(pos, type);
-        pos += WriteInt(pos, index);
-        pos += WriteInt(pos, pageSize);
-        pos += WriteInt(pos, recordCount);
-        pos += WriteInt(pos, recordSize);
-        pos += WriteInt(pos, freeSlotCount);
+        pos += WriteIntToHeader(pos, type);
+        pos += WriteIntToHeader(pos, index);
+        pos += WriteIntToHeader(pos, pageSize);
+        pos += WriteIntToHeader(pos, recordCount);
+        pos += WriteIntToHeader(pos, recordSize);
+        pos += WriteIntToHeader(pos, freeSlotCount);
 
         for (int i = 0; i < slotFreeArray.Length; i++)
-            WriteBool(buffer.Length - 1 - i, slotFreeArray[i]);
+            WriteBoolToHeader(buffer.Length - 1 - i, slotFreeArray[i]);
     }
 
     public static Page ReadFromBuffer(byte[] buffer)
@@ -211,18 +220,35 @@ public class Page
         Page p = new Page(buffer);
 
         int pos = 0;
-        pos += p.ReadInt(pos, ref p.type);
-        pos += p.ReadInt(pos, ref p.index);
-        pos += p.ReadInt(pos, ref p.pageSize);
-        pos += p.ReadInt(pos, ref p.recordCount);
-        pos += p.ReadInt(pos, ref p.recordSize);
-        pos += p.ReadInt(pos, ref p.freeSlotCount);
+        pos += p.ReadIntFromHeader(pos, ref p.type);
+        pos += p.ReadIntFromHeader(pos, ref p.index);
+        pos += p.ReadIntFromHeader(pos, ref p.pageSize);
+        pos += p.ReadIntFromHeader(pos, ref p.recordCount);
+        pos += p.ReadIntFromHeader(pos, ref p.recordSize);
+        pos += p.ReadIntFromHeader(pos, ref p.freeSlotCount);
 
         p.slotFreeArray = new bool[p.recordCount];
         for (int i = 0; i < p.slotFreeArray.Length; i++)
-            p.ReadBool(buffer.Length - 1 - i, ref p.slotFreeArray[i]);
+            p.ReadBoolFromHeader(buffer.Length - 1 - i, ref p.slotFreeArray[i]);
 
         return p;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return ReferenceEquals(this, obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(this);
+    }
+
+    public int CompareTo(Page? other)
+    {
+        if (other == null)
+            return -1;
+        return pageAge.CompareTo(other.pageAge);
     }
 }
 
@@ -233,17 +259,21 @@ public class PageManager
     private BinaryReader br;
     private FileStream fs;
 
+    private int headerSize = 1024;
     private int pageSize = -1;
     private int pageCount = 0;
-    private Dictionary<int, Page> pages = new Dictionary<int, Page>();
+    private int pageCacheCount = 0;
+    private Dictionary<int, Page> cachedPage = new Dictionary<int, Page>();
+    private MinPriorityQueue<Page> pageAgePriorityQueue = new MinPriorityQueue<Page>();
     private Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
-    private int headerSize = 1024;
+
 
     /*
-
-     header:
+     PM header:
+     
      int headerSize
      int pageCount
+     int pageCacheCount
      int pageSize
      int pageTypeCount
      (
@@ -255,13 +285,14 @@ public class PageManager
 
      */
 
-    public static PageManager Create(string filePath, int pageSize, List<PageType> pageTypes)
+    public static PageManager Create(string filePath, int pageSize, int pageCacheCount, List<PageType> pageTypes)
     {
         PageManager pm = new PageManager();
         pm.fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
         pm.bw = new BinaryWriter(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
         pm.br = new BinaryReader(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
         pm.pageSize = pageSize;
+        pm.pageCacheCount = pageCacheCount;
 
         pm.pageTypes.Add(-1, new PageType(-1, pageSize / 2));
 
@@ -277,44 +308,6 @@ public class PageManager
         return pm;
     }
 
-    public void FlushPage(long beginPos, BinaryWriter bw, Page p)
-    {
-        p.WriteToBuffer();
-        bw.Seek((int)beginPos + p.index * pageSize, SeekOrigin.Begin);
-        bw.Write(p.buffer, 0, p.pageSize);
-        p.dirty = false;
-    }
-
-    public void Close()
-    {
-        bw.Seek(0, SeekOrigin.Begin);
-
-        bw.Write(headerSize);
-        bw.Write(pages.Count);
-        bw.Write(pageSize);
-        bw.Write(pageTypes.Count);
-        foreach (PageType type in pageTypes.Values)
-        {
-            bw.Write(type.type);
-            bw.Write(type.recordSize);
-        }
-
-        long beginPos = bw.BaseStream.Position;
-
-        for (int i = 0; i < pages.Count; i++)
-        {
-            Page page = pages[i];
-            if (page.dirty == false)
-                continue;
-
-            FlushPage(beginPos, bw, page);
-        }
-
-        bw.Close();
-        br.Close();
-        fs.Close();
-    }
-
     public static PageManager Load(string filePath)
     {
         PageManager pm = new PageManager();
@@ -322,8 +315,10 @@ public class PageManager
         pm.bw = new BinaryWriter(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
         pm.br = new BinaryReader(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
 
+        pm.br.BaseStream.Seek(0, SeekOrigin.Begin);
         pm.headerSize = pm.br.ReadInt32();
         pm.pageCount = pm.br.ReadInt32();
+        pm.pageCacheCount = pm.br.ReadInt32();
         pm.pageSize = pm.br.ReadInt32();
 
         int pageTypeCount = pm.br.ReadInt32();
@@ -338,9 +333,50 @@ public class PageManager
         return pm;
     }
 
+    public void FlushPage(Page p)
+    {
+        p.WriteToBuffer();
+        bw.Seek(headerSize + p.index * pageSize, SeekOrigin.Begin);
+        bw.Write(p.buffer, 0, p.pageSize);
+        p.dirty = false;
+    }
+
+    private void WriteHeader()
+    {
+        bw.BaseStream.Seek(0, SeekOrigin.Begin);
+        bw.Write(headerSize);
+        bw.Write(pageCount);
+        bw.Write(pageCacheCount);
+        bw.Write(pageSize);
+        bw.Write(pageTypes.Count);
+
+        foreach (PageType type in pageTypes.Values)
+        {
+            bw.Write(type.type);
+            bw.Write(type.recordSize);
+        }
+    }
+
+    public void Close()
+    {
+        WriteHeader();
+
+        for (int i = 0; i < cachedPage.Count; i++)
+        {
+            Page page = cachedPage[i];
+            if (page.dirty == false)
+                continue;
+            FlushPage(page);
+        }
+
+        bw.Close();
+        br.Close();
+        fs.Close();
+    }
+
     public RecordId AllocateRecord(int type)
     {
-        foreach (Page p in pages.Values)
+        foreach (Page p in cachedPage.Values)
         {
             if (p.type == type && p.freeSlotCount > 0)
             {
@@ -355,8 +391,8 @@ public class PageManager
 
     public void DeleteRecord(RecordId id)
     {
-        Page p = pages[id.pageId];
-        p.FreeSlot(id.slotId);
+        Page p = cachedPage[id.pageId];
+        p.ReleaseSlot(id.slotId);
     }
 
     public RecordStreamWriter GetRecordStreamWriter(RecordId rid)
@@ -371,8 +407,8 @@ public class PageManager
 
     private Page GetPage(int pageId)
     {
-        if (pages.ContainsKey(pageId))
-            return pages[pageId];
+        if (cachedPage.ContainsKey(pageId))
+            return cachedPage[pageId];
 
         return ReadPageFromFile(pageId);
     }
@@ -389,7 +425,8 @@ public class PageManager
         PageType type = pageTypes[pageType];
 
         Page page = new Page(pageType, pageCount, pageSize, type.recordSize);
-        pages.Add(page.index, page);
+        cachedPage.Add(page.index, page);
+
         byte[] zeros = new byte[pageSize];
         fs.Seek(0, SeekOrigin.End);
         fs.Write(zeros, 0, zeros.Length);
