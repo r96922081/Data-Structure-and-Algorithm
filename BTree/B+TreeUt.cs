@@ -175,11 +175,8 @@ public class BPlusTreeUt
         }
         else if (order == DeleteOrder.Random)
         {
-            int iteration = 0;
-            for (int randomCount = 0; randomCount < 1000 * 100; randomCount += 1000)
+            for (int randomSeed = 0; randomSeed < 1000 * 100; randomSeed += 1000)
             {
-                //Console.WriteLine("iteration = " + iteration++);
-
                 tree = new BPlusTree(t);
                 for (int i = 0; i < dataCount; i++)
                     tree.Insert(new CustomClass3(i));
@@ -187,7 +184,7 @@ public class BPlusTreeUt
                 List<int> values = new List<int>();
                 for (int i = 0; i < dataCount; i++)
                     values.Add(i);
-                Random random = new Random(0);
+                Random random = new Random(randomSeed);
 
                 int tempDataCount = dataCount;
 
@@ -195,7 +192,6 @@ public class BPlusTreeUt
                 {
                     int valueIndex = random.Next() % values.Count;
                     int count = tree.Delete(values[valueIndex]);
-                    //Console.WriteLine(tree);
                     tempDataCount--;
                     Check(count == 1);
                     values.RemoveAt(valueIndex);

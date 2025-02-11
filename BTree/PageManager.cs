@@ -229,13 +229,15 @@ public class Page
 // a.k.a. BufferPool
 public class PageManager
 {
+    private BinaryWriter bw;
+    private BinaryReader br;
     private FileStream fs;
 
     private int pageSize = -1;
     private int pageCount = 0;
     private Dictionary<int, Page> pages = new Dictionary<int, Page>();
     private Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
-    private int headerSize = -1;
+    private int headerSize = 1024;
 
     /*
 
@@ -257,6 +259,8 @@ public class PageManager
     {
         PageManager pm = new PageManager();
         pm.fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        pm.bw = new BinaryWriter(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
+        pm.br = new BinaryReader(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
         pm.pageSize = pageSize;
 
         pm.pageTypes.Add(-1, new PageType(-1, pageSize / 2));
@@ -283,32 +287,31 @@ public class PageManager
 
     public void Close()
     {
-        using (BinaryWriter bw = new BinaryWriter(fs, System.Text.Encoding.UTF8, leaveOpen: true))
+        bw.Seek(0, SeekOrigin.Begin);
+
+        bw.Write(headerSize);
+        bw.Write(pages.Count);
+        bw.Write(pageSize);
+        bw.Write(pageTypes.Count);
+        foreach (PageType type in pageTypes.Values)
         {
-            bw.Seek(0, SeekOrigin.Begin);
-
-            bw.Write(headerSize);
-            bw.Write(pages.Count);
-            bw.Write(pageSize);
-            bw.Write(pageTypes.Count);
-            foreach (PageType type in pageTypes.Values)
-            {
-                bw.Write(type.type);
-                bw.Write(type.recordSize);
-            }
-
-            long beginPos = bw.BaseStream.Position;
-
-            for (int i = 0; i < pages.Count; i++)
-            {
-                Page page = pages[i];
-                if (page.dirty == false)
-                    continue;
-
-                FlushPage(beginPos, bw, page);
-            }
+            bw.Write(type.type);
+            bw.Write(type.recordSize);
         }
 
+        long beginPos = bw.BaseStream.Position;
+
+        for (int i = 0; i < pages.Count; i++)
+        {
+            Page page = pages[i];
+            if (page.dirty == false)
+                continue;
+
+            FlushPage(beginPos, bw, page);
+        }
+
+        bw.Close();
+        br.Close();
         fs.Close();
     }
 
@@ -316,21 +319,20 @@ public class PageManager
     {
         PageManager pm = new PageManager();
         pm.fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        pm.bw = new BinaryWriter(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
+        pm.br = new BinaryReader(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
 
-        using (BinaryReader r = new BinaryReader(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true))
+        pm.headerSize = pm.br.ReadInt32();
+        pm.pageCount = pm.br.ReadInt32();
+        pm.pageSize = pm.br.ReadInt32();
+
+        int pageTypeCount = pm.br.ReadInt32();
+        Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
+        for (int i = 0; i < pageTypeCount; i++)
         {
-            pm.headerSize = r.ReadInt32();
-            pm.pageCount = r.ReadInt32();
-            pm.pageSize = r.ReadInt32();
-
-            int pageTypeCount = r.ReadInt32();
-            Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
-            for (int i = 0; i < pageTypeCount; i++)
-            {
-                int type = r.ReadInt32();
-                int size = r.ReadInt32();
-                pageTypes.Add(type, new PageType(type, size));
-            }
+            int type = pm.br.ReadInt32();
+            int size = pm.br.ReadInt32();
+            pageTypes.Add(type, new PageType(type, size));
         }
 
         return pm;
@@ -377,12 +379,9 @@ public class PageManager
 
     private Page ReadPageFromFile(int pageId)
     {
-        using (BinaryReader br = new BinaryReader(fs, System.Text.Encoding.UTF8, leaveOpen: true))
-        {
-            fs.Seek(headerSize + pageId * pageSize, SeekOrigin.Begin);
-            byte[] buffer = br.ReadBytes(pageSize);
-            return Page.ReadFromBuffer(buffer);
-        }
+        fs.Seek(headerSize + pageId * pageSize, SeekOrigin.Begin);
+        byte[] buffer = br.ReadBytes(pageSize);
+        return Page.ReadFromBuffer(buffer);
     }
 
     private Page NewPage(int pageType)
