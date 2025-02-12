@@ -2,19 +2,17 @@
 {
     IComparable GetKey();
     string ToString();
-    void Save(BinaryWriter bw);
-    IBTreeValue Load(BinaryReader br);
 }
 
-public class BTreeNode
+public class BTreeNode<T> where T : IComparable<T>, IBTreeValue
 {
-    public BTreeNode parent = null;
-    public List<IBTreeValue> keys = new List<IBTreeValue>();
-    public List<BTreeNode> children = new List<BTreeNode>();
+    public BTreeNode<T> parent = null;
+    public List<T> keys = new List<T>();
+    public List<BTreeNode<T>> children = new List<BTreeNode<T>>();
 
     public BTreeNode() { }
 
-    public BTreeNode(List<IBTreeValue> keys)
+    public BTreeNode(List<T> keys)
     {
         this.keys = keys;
     }
@@ -29,37 +27,10 @@ public class BTreeNode
         return !IsLeaf();
     }
 
-    public void Save(BinaryWriter bw)
-    {
-        bw.Write(keys.Count);
-        foreach (IBTreeValue t in keys)
-            t.Save(bw);
-        bw.Write(children.Count);
-        foreach (BTreeNode n in children)
-            n.Save(bw);
-    }
-
-    public BTreeNode Load(BinaryReader br, IBTreeValue dummy)
-    {
-        BTreeNode n = new BTreeNode();
-        int keyCount = br.ReadInt32();
-        for (int i = 0; i < keyCount; i++)
-            n.keys.Add(dummy.Load(br));
-        int childrenCount = br.ReadInt32();
-        for (int i = 0; i < childrenCount; i++)
-        {
-            BTreeNode child = Load(br, dummy);
-            child.parent = this;
-            n.children.Add(child);
-        }
-
-        return n;
-    }
-
     public override string ToString()
     {
         string s = "[";
-        foreach (IBTreeValue key in keys)
+        foreach (T key in keys)
         {
             if (s != "[")
             {
@@ -72,10 +43,10 @@ public class BTreeNode
     }
 }
 
-public class BTree
+public class BTree<T> where T : IComparable<T>, IBTreeValue
 {
     public int t;
-    public BTreeNode root = null;
+    public BTreeNode<T> root = null;
 
     public BTree()
     {
@@ -87,24 +58,24 @@ public class BTree
         this.t = t;
     }
 
-    public void Insert(IBTreeValue key)
+    public void Insert(T key)
     {
         if (root == null)
         {
-            BTreeNode node = new BTreeNode();
+            BTreeNode<T> node = new BTreeNode<T>();
             root = node;
         }
 
         FindLeafToInsert(root, key);
     }
 
-    public void Delete(IBTreeValue key)
+    public void Delete(T key)
     {
         while (DeleteInternal(root, key))
             ;
     }
 
-    private bool DeleteInternal(BTreeNode node, IBTreeValue key)
+    private bool DeleteInternal(BTreeNode<T> node, T key)
     {
         if (node == null)
             return false;
@@ -129,8 +100,8 @@ public class BTree
             }
             else
             {
-                BTreeNode leftChildNode = node.children[keyIndex];
-                BTreeNode rightChildNode = node.children[keyIndex + 1];
+                BTreeNode<T> leftChildNode = node.children[keyIndex];
+                BTreeNode<T> rightChildNode = node.children[keyIndex + 1];
 
                 if (leftChildNode.keys.Count > t - 1)
                 {
@@ -144,7 +115,7 @@ public class BTree
                 }
                 else
                 {
-                    BTreeNode mergedNode = MergeNode(node, keyIndex);
+                    BTreeNode<T> mergedNode = MergeNode(node, keyIndex);
                     return DeleteInternal(mergedNode, key);
                 }
             }
@@ -156,7 +127,7 @@ public class BTree
 
             // key not found in this node, move downward and assure keys count > t - 1
             int childIndex = biggerKeyIndex;
-            BTreeNode childNode = node.children[childIndex];
+            BTreeNode<T> childNode = node.children[childIndex];
 
             if (childNode.keys.Count > t - 1)
                 return DeleteInternal(childNode, key);
@@ -170,7 +141,7 @@ public class BTree
                 }
                 else
                 {
-                    BTreeNode mergedNode = MergeNode(node, 0);
+                    BTreeNode<T> mergedNode = MergeNode(node, 0);
                     return DeleteInternal(mergedNode, key);
                 }
             }
@@ -183,17 +154,17 @@ public class BTree
                 }
                 else
                 {
-                    BTreeNode mergedNode = MergeNode(node, childIndex - 1);
+                    BTreeNode<T> mergedNode = MergeNode(node, childIndex - 1);
                     return DeleteInternal(mergedNode, key);
                 }
             }
         }
     }
 
-    private void RotateCounterClockwise(BTreeNode parentNode, int keyIndex)
+    private void RotateCounterClockwise(BTreeNode<T> parentNode, int keyIndex)
     {
-        BTreeNode leftChildNode = parentNode.children[keyIndex];
-        BTreeNode rightChildNode = parentNode.children[keyIndex + 1];
+        BTreeNode<T> leftChildNode = parentNode.children[keyIndex];
+        BTreeNode<T> rightChildNode = parentNode.children[keyIndex + 1];
 
         leftChildNode.keys.Add(parentNode.keys[keyIndex]);
         parentNode.keys[keyIndex] = rightChildNode.keys[0];
@@ -206,10 +177,10 @@ public class BTree
         }
     }
 
-    private void RotateClockwise(BTreeNode parentNode, int keyIndex)
+    private void RotateClockwise(BTreeNode<T> parentNode, int keyIndex)
     {
-        BTreeNode leftChildNode = parentNode.children[keyIndex];
-        BTreeNode rightChildNode = parentNode.children[keyIndex + 1];
+        BTreeNode<T> leftChildNode = parentNode.children[keyIndex];
+        BTreeNode<T> rightChildNode = parentNode.children[keyIndex + 1];
 
         rightChildNode.keys.Insert(0, parentNode.keys[keyIndex]);
         parentNode.keys[keyIndex] = leftChildNode.keys[leftChildNode.keys.Count - 1];
@@ -222,9 +193,9 @@ public class BTree
         }
     }
 
-    private BTreeNode MergeNode(BTreeNode node, int keyIndex)
+    private BTreeNode<T> MergeNode(BTreeNode<T> node, int keyIndex)
     {
-        BTreeNode mergedNode = new BTreeNode();
+        BTreeNode<T> mergedNode = new BTreeNode<T>();
         mergedNode.keys.AddRange(node.children[keyIndex].keys);
         mergedNode.keys.Add(node.keys[keyIndex]);
         mergedNode.keys.AddRange(node.children[keyIndex + 1].keys);
@@ -244,7 +215,7 @@ public class BTree
         return mergedNode;
     }
 
-    private void InsertUpward(BTreeNode node, IBTreeValue key, BTreeNode left, BTreeNode right)
+    private void InsertUpward(BTreeNode<T> node, T key, BTreeNode<T> left, BTreeNode<T> right)
     {
         int i = GetKeyInsertPosition(node, key);
 
@@ -262,7 +233,7 @@ public class BTree
         }
     }
 
-    private int GetKeyInsertPosition(BTreeNode node, IBTreeValue key)
+    private int GetKeyInsertPosition(BTreeNode<T> node, T key)
     {
         int i = 0;
         for (; i < node.keys.Count; i++)
@@ -273,7 +244,7 @@ public class BTree
         return i;
     }
 
-    private void FindLeafToInsert(BTreeNode node, IBTreeValue key)
+    private void FindLeafToInsert(BTreeNode<T> node, T key)
     {
         int i = GetKeyInsertPosition(node, key);
 
@@ -292,27 +263,27 @@ public class BTree
         }
     }
 
-    private void Split(BTreeNode node)
+    private void Split(BTreeNode<T> node)
     {
-        IBTreeValue key = node.keys[t];
+        T key = node.keys[t];
 
-        BTreeNode left = new BTreeNode(node.keys.GetRange(0, t));
-        BTreeNode right = new BTreeNode(node.keys.GetRange(t + 1, t - 1));
+        BTreeNode<T> left = new BTreeNode<T>(node.keys.GetRange(0, t));
+        BTreeNode<T> right = new BTreeNode<T>(node.keys.GetRange(t + 1, t - 1));
 
         if (node.children.Count > 0)
         {
             left.children.AddRange(node.children.GetRange(0, t + 1));
             right.children.AddRange(node.children.GetRange(t + 1, t));
 
-            foreach (BTreeNode child in left.children)
+            foreach (BTreeNode<T> child in left.children)
                 child.parent = left;
-            foreach (BTreeNode child in right.children)
+            foreach (BTreeNode<T> child in right.children)
                 child.parent = right;
         }
 
         if (node.parent == null)
         {
-            root = new BTreeNode();
+            root = new BTreeNode<T>();
             node.parent = root;
         }
         left.parent = node.parent;
@@ -329,26 +300,26 @@ public class BTree
         return KeyCountInternal(root);
     }
 
-    private int KeyCountInternal(BTreeNode node)
+    private int KeyCountInternal(BTreeNode<T> node)
     {
         int keyCount = node.keys.Count;
-        foreach (BTreeNode n in node.children)
+        foreach (BTreeNode<T> n in node.children)
             keyCount += KeyCountInternal(n);
 
         return keyCount;
     }
 
-    public List<IBTreeValue> Find(IBTreeValue key)
+    public List<T> Find(T key)
     {
         if (root == null)
-            return new List<IBTreeValue>();
+            return new List<T>();
 
         return FindInternal(root, key);
     }
 
-    private List<IBTreeValue> FindInternal(BTreeNode node, IBTreeValue key)
+    private List<T> FindInternal(BTreeNode<T> node, T key)
     {
-        List<IBTreeValue> found = new List<IBTreeValue>();
+        List<T> found = new List<T>();
 
         int start = 0;
         for (; start < node.keys.Count; start++)
@@ -378,14 +349,14 @@ public class BTree
         return found;
     }
 
-    private int getString(int level, BTreeNode currentNode, List<List<string>> nodeStringByLevel)
+    private int getString(int level, BTreeNode<T> currentNode, List<List<string>> nodeStringByLevel)
     {
         if (level == nodeStringByLevel.Count)
             nodeStringByLevel.Add(new List<string>());
 
         string currentNodeString = currentNode.ToString();
         int childrenWidth = 0;
-        foreach (BTreeNode child in currentNode.children)
+        foreach (BTreeNode<T> child in currentNode.children)
             childrenWidth += getString(level + 1, child, nodeStringByLevel);
 
         for (int i = 0; currentNodeString.Length < childrenWidth; i++)
@@ -399,31 +370,6 @@ public class BTree
         nodeStringByLevel[level].Add(currentNodeString);
 
         return childrenWidth >= currentNodeString.Length ? childrenWidth : currentNodeString.Length;
-    }
-
-    public void Save(BinaryWriter bw)
-    {
-        bw.Write(t);
-        if (root == null)
-            bw.Write(false);
-        else
-        {
-            bw.Write(true);
-            root.Save(bw);
-        }
-    }
-
-    public static BTree Load(BinaryReader br, IBTreeValue dummy)
-    {
-        BTree tree = new BTree();
-
-        tree.t = br.ReadInt32();
-        bool hasRoot = br.ReadBoolean();
-
-        if (hasRoot)
-            tree.root = new BTreeNode().Load(br, dummy);
-
-        return tree;
     }
 
     public override string ToString()

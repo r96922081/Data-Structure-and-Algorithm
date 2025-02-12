@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-public class CustomClass2 : IBTreeValue
+public class CustomClass2 : IBTreeValue, IComparable<CustomClass2>
 {
     public int value = 0;
 
@@ -19,19 +19,16 @@ public class CustomClass2 : IBTreeValue
         return value;
     }
 
-    public void Save(BinaryWriter bw)
-    {
-
-    }
-
-    public IBTreeValue Load(BinaryReader br)
-    {
-        return null;
-    }
-
     public string ToString()
     {
         return "" + value;
+    }
+
+    public int CompareTo(CustomClass2? other)
+    {
+        if (other == null)
+            return -1;
+        return value.CompareTo(other.value);
     }
 }
 
@@ -44,14 +41,14 @@ public class BTreeUt
 
     private static void TestBTreeInsert()
     {
-        BTree tree = new BTree(2);
+        BTree<CustomClass2> tree = new BTree<CustomClass2>(2);
         for (int i = 30; i >= 1; i--)
             tree.Insert(new CustomClass2(i));
 
         CheckBTreeValidity(tree);
         Check(tree.KeyCount() == 30);
 
-        tree = new BTree(3);
+        tree = new BTree<CustomClass2>(3);
         for (int i = 100; i >= 1; i--)
         {
             tree.Insert(new CustomClass2(i));
@@ -66,7 +63,7 @@ public class BTreeUt
 
     private static void TestBTreeFind()
     {
-        BTree tree = new BTree(2);
+        BTree<CustomClass2> tree = new BTree<CustomClass2>(2);
 
         for (int i = 30; i >= 1; i--)
             tree.Insert(new CustomClass2(i));
@@ -83,7 +80,7 @@ public class BTreeUt
 
     private static void TestBTreeDelete()
     {
-        BTree tree = new BTree(2);
+        BTree<CustomClass2> tree = new BTree<CustomClass2>(2);
 
         for (int i = 0; i < 20; i++)
             tree.Insert(new CustomClass2(i));
@@ -106,7 +103,7 @@ public class BTreeUt
 
         for (int seed = 0; seed < 500; seed++)
         {
-            tree = new BTree(3);
+            tree = new BTree<CustomClass2>(3);
 
             List<int> keys = new List<int>();
             for (int i = 0; i < 500; i++)
@@ -127,12 +124,12 @@ public class BTreeUt
         }
     }
 
-    private static void CheckBTreeValidity1_KeyAndChildCount(BTree tree)
+    private static void CheckBTreeValidity1_KeyAndChildCount(BTree<CustomClass2> tree)
     {
         CheckBTreeValidity1_KeyAndChildCountInternal(tree, tree.root);
     }
 
-    private static void CheckBTreeValidity1_KeyAndChildCountInternal(BTree tree, BTreeNode n)
+    private static void CheckBTreeValidity1_KeyAndChildCountInternal(BTree<CustomClass2> tree, BTreeNode<CustomClass2> n)
     {
         if (n == null)
             return;
@@ -143,27 +140,27 @@ public class BTreeUt
         if (n.children.Count != 0)
             Check(n.keys.Count + 1 == n.children.Count);
 
-        foreach (BTreeNode child in n.children)
+        foreach (BTreeNode<CustomClass2> child in n.children)
             CheckBTreeValidity1_KeyAndChildCountInternal(tree, child);
     }
 
-    private static void CheckBTreeValidity2_leafDepthInternal(BTreeNode n, int prevLeafDepth, int FirstLeafDepth)
+    private static void CheckBTreeValidity2_leafDepthInternal(BTreeNode<CustomClass2> n, int prevLeafDepth, int FirstLeafDepth)
     {
         if (n.IsLeaf())
             Check(prevLeafDepth == FirstLeafDepth);
         else
         {
-            foreach (BTreeNode child in n.children)
+            foreach (BTreeNode<CustomClass2> child in n.children)
                 CheckBTreeValidity2_leafDepthInternal(child, prevLeafDepth + 1, FirstLeafDepth);
         }
     }
 
-    private static void CheckBTreeValidity2_leafDepth(BTree tree)
+    private static void CheckBTreeValidity2_leafDepth(BTree<CustomClass2> tree)
     {
         if (tree.root == null)
             return;
 
-        BTreeNode firstChild = tree.root;
+        BTreeNode<CustomClass2> firstChild = tree.root;
         int depth = 0;
         while (firstChild.children.Count != 0)
         {
@@ -174,7 +171,7 @@ public class BTreeUt
         CheckBTreeValidity2_leafDepthInternal(tree.root, 0, depth);
     }
 
-    private static IBTreeValue CheckBTreeValidity3_CheckOrderInternal(BTreeNode node, IBTreeValue prevValue)
+    private static CustomClass2 CheckBTreeValidity3_CheckOrderInternal(BTreeNode<CustomClass2> node, CustomClass2 prevValue)
     {
         for (int i = 0; i < node.children.Count; i++)
         {
@@ -191,12 +188,12 @@ public class BTreeUt
         return prevValue;
     }
 
-    private static void CheckBTreeValidity3_CheckOrder(BTree tree)
+    private static void CheckBTreeValidity3_CheckOrder(BTree<CustomClass2> tree)
     {
         CheckBTreeValidity3_CheckOrderInternal(tree.root, new CustomClass2(-1));
     }
 
-    private static void CheckBTreeValidity(BTree tree)
+    private static void CheckBTreeValidity(BTree<CustomClass2> tree)
     {
         if (tree.root == null)
             return;
@@ -206,90 +203,10 @@ public class BTreeUt
         CheckBTreeValidity3_CheckOrder(tree);
     }
 
-    public class SaveLoadTest : IBTreeValue, IComparable
-    {
-        public int intValue = 0;
-        public string strValue = "";
-
-        public SaveLoadTest()
-        {
-
-        }
-
-        public SaveLoadTest(int intValue, string strValue)
-        {
-            this.intValue = intValue;
-            this.strValue = strValue;
-        }
-
-        public int CompareTo(object? other)
-        {
-            if (other == null)
-                return 0;
-
-            if (intValue < ((SaveLoadTest)other).intValue)
-                return -1;
-            else if (intValue == ((SaveLoadTest)other).intValue)
-                return strValue.CompareTo(((SaveLoadTest)other).strValue);
-            else
-                return 1;
-        }
-
-        public IComparable GetKey()
-        {
-            return this;
-        }
-
-        public void Save(BinaryWriter bw)
-        {
-            bw.Write(intValue);
-            bw.Write(strValue);
-        }
-
-        public IBTreeValue Load(BinaryReader br)
-        {
-            SaveLoadTest ret = new SaveLoadTest();
-            ret.intValue = br.ReadInt32();
-            ret.strValue = br.ReadString();
-
-            return ret;
-        }
-
-        public string ToString()
-        {
-            return "" + intValue + "(" + strValue + ")";
-        }
-
-
-    }
-
-    private static void TestBTreeSave()
-    {
-        BTree tree = new BTree(2);
-
-        for (int i = 100; i >= 1; i--)
-            tree.Insert(new SaveLoadTest(i, ((char)('A' + i)).ToString()));
-
-        using (BinaryWriter bw = new BinaryWriter(File.Open("../../../Ut/BTreeUt/UtFiles/SaveLoadUt.btree", FileMode.Create)))
-        {
-            tree.Save(bw);
-        }
-
-        BTree loadedTree;
-        using (BinaryReader br = new BinaryReader(File.Open("../../../Ut/BTreeUt/UtFiles/SaveLoadUt.btree", FileMode.Open)))
-        {
-            loadedTree = BTree.Load(br, new SaveLoadTest());
-        }
-
-        Check(tree.ToString() == loadedTree.ToString());
-
-    }
-
     public static void Ut()
     {
         TestBTreeInsert();
         TestBTreeFind();
         TestBTreeDelete();
-        TestBTreeSave();
     }
 }
