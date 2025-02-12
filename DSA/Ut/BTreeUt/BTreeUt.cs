@@ -270,15 +270,13 @@ public class BTreeUt
         for (int i = 100; i >= 1; i--)
             tree.Insert(new SaveLoadTest(i, ((char)('A' + i)).ToString()));
 
-        Console.WriteLine(tree.ToString());
-
-        using (BinaryWriter bw = new BinaryWriter(File.Open("../../../UtFiles/SaveLoadUt.btree", FileMode.Create)))
+        using (BinaryWriter bw = new BinaryWriter(File.Open("../../../Ut/BTreeUt/UtFiles/SaveLoadUt.btree", FileMode.Create)))
         {
             tree.Save(bw);
         }
 
         BTree loadedTree;
-        using (BinaryReader br = new BinaryReader(File.Open("../../../UtFiles/SaveLoadUt.btree", FileMode.Open)))
+        using (BinaryReader br = new BinaryReader(File.Open("../../../Ut/BTreeUt/UtFiles/SaveLoadUt.btree", FileMode.Open)))
         {
             loadedTree = BTree.Load(br, new SaveLoadTest());
         }

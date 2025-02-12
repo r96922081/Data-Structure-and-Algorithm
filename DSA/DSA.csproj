@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Ut\BTreeUt\UtFiles\" />
+    <Folder Include="Ut\PageBufferPoolUt\UtFiles\" />
+  </ItemGroup>
+
 </Project>

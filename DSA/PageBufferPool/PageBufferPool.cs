@@ -253,8 +253,7 @@ public class Page : IComparable<Page>
     }
 }
 
-// a.k.a. BufferPool
-public class PageManager
+public class PageBufferPool
 {
     private BinaryWriter bw;
     private BinaryReader br;
@@ -286,9 +285,9 @@ public class PageManager
 
      */
 
-    public static PageManager Create(string filePath, int pageSize, int pageCacheCount, List<PageType> pageTypes)
+    public static PageBufferPool Create(string filePath, int pageSize, int pageCacheCount, List<PageType> pageTypes)
     {
-        PageManager pm = new PageManager();
+        PageBufferPool pm = new PageBufferPool();
         pm.fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
         pm.bw = new BinaryWriter(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
         pm.br = new BinaryReader(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
@@ -309,9 +308,9 @@ public class PageManager
         return pm;
     }
 
-    public static PageManager Load(string filePath)
+    public static PageBufferPool Load(string filePath)
     {
-        PageManager pm = new PageManager();
+        PageBufferPool pm = new PageBufferPool();
         pm.fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
         pm.bw = new BinaryWriter(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
         pm.br = new BinaryReader(pm.fs, System.Text.Encoding.UTF8, leaveOpen: true);
