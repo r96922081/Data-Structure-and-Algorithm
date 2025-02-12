@@ -416,6 +416,8 @@ public class BPlusTreePagedUt
         Check(r.ReadInt() == 4);
         Check(r.ReadInt() == 5);
         Check(r.ReadInt() == 6);
+
+        pm2.Close();
     }
 
     private static void TestPage2()
@@ -448,12 +450,53 @@ public class BPlusTreePagedUt
         Check(r.ReadInt() == 2);
         Check(r.ReadInt() == 3);
         Check(r.ReadInt() == 4);
+
+        pm.Close();
+    }
+
+    private static void TestPage3_Cache()
+    {
+        int pageCacheCount = 10;
+        int pageSize = 100;
+
+        string filePath = "../../../UtFiles/PageManagerSave3.bin";
+        RecordStreamWriter w = null;
+        RecordStreamReader r = null;
+
+        PageType t1 = new PageType((int)PageTypeEnum.type1, 20);
+        PageType t2 = new PageType((int)PageTypeEnum.type2, 30);
+
+        PageManager pm = PageManager.Create(filePath, pageSize, pageCacheCount, new List<PageType>() { t1, t2 });
+        List<RecordId> rids = new List<RecordId>();
+        for (int i = 0; i < 100; i++)
+        {
+            rids.Add(pm.AllocateRecord((int)PageTypeEnum.type1));
+            rids.Add(pm.AllocateRecord((int)PageTypeEnum.type2));
+        }
+
+        for (int i = 0; i < rids.Count; i++)
+        {
+            w = pm.GetRecordStreamWriter(rids[i]);
+            w.WriteInt(i);
+        }
+
+        pm.Close();
+
+        PageManager pm2 = PageManager.Load(filePath);
+        for (int i = 0; i < rids.Count; i++)
+        {
+            r = pm2.GetRecordStreamReader(rids[i]);
+            Check(r.ReadInt() == i);
+        }
+
+        pm2.Close();
     }
 
     public static void TestPage()
     {
         TestPage1();
         TestPage2();
+        TestPage3_Cache();
     }
 
     public static void Ut()

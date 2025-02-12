@@ -123,7 +123,6 @@ public class Page : IComparable<Page>
 
     public int AllocateSlot()
     {
-        pageAge = pageAgeCounter++;
         for (int i = 0; i < slotFreeArray.Length; i++)
         {
             if (slotFreeArray[i])
@@ -140,7 +139,6 @@ public class Page : IComparable<Page>
 
     public void ReleaseSlot(int slotId)
     {
-        pageAge = pageAgeCounter++;
         if (slotFreeArray[slotId] == true)
             throw new Exception();
         slotFreeArray[slotId] = true;
@@ -150,15 +148,18 @@ public class Page : IComparable<Page>
 
     public RecordStreamWriter GetRecordStreamWriter(int slotId)
     {
-        pageAge = pageAgeCounter++;
         dirty = true;
         return new RecordStreamWriter(buffer, headerSize + slotId * recordSize, recordSize);
     }
 
     public RecordStreamReader GetRecordStreamReader(int slotId)
     {
-        pageAge = pageAgeCounter++;
         return new RecordStreamReader(buffer, headerSize + slotId * recordSize, recordSize);
+    }
+
+    public void Age()
+    {
+        pageAge = pageAgeCounter++;
     }
 
     private int WriteIntToHeader(int pos, int v)
@@ -263,8 +264,8 @@ public class PageManager
     private int pageSize = -1;
     private int pageCount = 0;
     private int pageCacheCount = 0;
-    private Dictionary<int, Page> cachedPage = new Dictionary<int, Page>();
-    private MinPriorityQueue<Page> pageAgePriorityQueue = new MinPriorityQueue<Page>();
+    private Dictionary<int, Page> cachedPages = new Dictionary<int, Page>();
+    private MinPriorityQueue<Page> pagePriorityQueue = new MinPriorityQueue<Page>();
     private Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
 
 
@@ -361,12 +362,11 @@ public class PageManager
     {
         WriteHeader();
 
-        for (int i = 0; i < cachedPage.Count; i++)
+        foreach (Page p in cachedPages.Values)
         {
-            Page page = cachedPage[i];
-            if (page.dirty == false)
+            if (p.dirty == false)
                 continue;
-            FlushPage(page);
+            FlushPage(p);
         }
 
         bw.Close();
@@ -376,23 +376,29 @@ public class PageManager
 
     public RecordId AllocateRecord(int type)
     {
-        foreach (Page p in cachedPage.Values)
+        Page p = null;
+
+        foreach (Page p2 in cachedPages.Values)
         {
-            if (p.type == type && p.freeSlotCount > 0)
+            if (p2.type == type && p2.freeSlotCount > 0)
             {
-                p.dirty = true;
-                return new RecordId(p.index, p.AllocateSlot());
+                p = p2;
+                break;
             }
         }
 
-        Page p2 = NewPage(type);
-        return new RecordId(p2.index, p2.AllocateSlot());
+        if (p == null)
+            p = NewPage(type);
+
+        p.dirty = true;
+        p.Age();
+        pagePriorityQueue.IncreaseKey(p);
+        return new RecordId(p.index, p.AllocateSlot());
     }
 
     public void DeleteRecord(RecordId id)
     {
-        Page p = cachedPage[id.pageId];
-        p.ReleaseSlot(id.slotId);
+        GetPage(id.pageId).ReleaseSlot(id.slotId);
     }
 
     public RecordStreamWriter GetRecordStreamWriter(RecordId rid)
@@ -407,17 +413,23 @@ public class PageManager
 
     private Page GetPage(int pageId)
     {
-        if (cachedPage.ContainsKey(pageId))
-            return cachedPage[pageId];
-
-        return ReadPageFromFile(pageId);
+        Page p = null;
+        if (cachedPages.ContainsKey(pageId))
+            p = cachedPages[pageId];
+        else
+            p = ReadPageFromFile(pageId);
+        p.Age();
+        pagePriorityQueue.IncreaseKey(p);
+        return p;
     }
 
     private Page ReadPageFromFile(int pageId)
     {
         fs.Seek(headerSize + pageId * pageSize, SeekOrigin.Begin);
         byte[] buffer = br.ReadBytes(pageSize);
-        return Page.ReadFromBuffer(buffer);
+        Page p = Page.ReadFromBuffer(buffer);
+        ReplacePageInCache(p);
+        return p;
     }
 
     private Page NewPage(int pageType)
@@ -425,14 +437,34 @@ public class PageManager
         PageType type = pageTypes[pageType];
 
         Page page = new Page(pageType, pageCount, pageSize, type.recordSize);
-        cachedPage.Add(page.index, page);
 
         byte[] zeros = new byte[pageSize];
         fs.Seek(0, SeekOrigin.End);
         fs.Write(zeros, 0, zeros.Length);
 
         pageCount++;
+        ReplacePageInCache(page);
 
         return page;
+    }
+
+    private void ReplacePageInCache(Page p)
+    {
+        if (cachedPages.ContainsKey(p.index))
+            return;
+
+        // EvictPage
+        if (cachedPages.Count >= pageCacheCount && cachedPages.Count != 0)
+        {
+            Page evictedPage = pagePriorityQueue.ExtractMin();
+            cachedPages.Remove(evictedPage.index);
+
+            if (evictedPage.dirty)
+                FlushPage(evictedPage);
+        }
+
+        pagePriorityQueue.Insert(p);
+        cachedPages.Add(p.index, p);
+
     }
 }
