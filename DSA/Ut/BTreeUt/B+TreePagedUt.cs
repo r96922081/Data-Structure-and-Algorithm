@@ -57,7 +57,9 @@ public class BPlusTreePagedUt
 
     private static void Find1()
     {
-        BPlusTreePaged tree = new BPlusTreePaged(2);
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+
+        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
         for (int i = 1; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
 
@@ -67,11 +69,14 @@ public class BPlusTreePagedUt
         Check(found.Count == 0);
         found = tree.Find(2);
         Check(found.Count == 0);
+
+        pc.Close();
     }
 
     private static void Find2()
     {
-        BPlusTreePaged tree = new BPlusTreePaged(2);
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
         for (int i = 3; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
 
@@ -81,11 +86,14 @@ public class BPlusTreePagedUt
         Check(found.Count == 0);
         found = tree.Find(2);
         Check(found.Count == 0);
+
+        pc.Close();
     }
 
     private static void Find3()
     {
-        BPlusTreePaged tree = new BPlusTreePaged(2);
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
         for (int i = 4; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
 
@@ -95,11 +103,14 @@ public class BPlusTreePagedUt
         Check(found.Count == 0);
         found = tree.Find(2);
         Check(found.Count == 0);
+
+        pc.Close();
     }
 
     private static void Find4()
     {
-        BPlusTreePaged tree = new BPlusTreePaged(2);
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
         for (int i = 100; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
 
@@ -109,11 +120,14 @@ public class BPlusTreePagedUt
         Check(found.Count == 0);
         found = tree.Find(2);
         Check(found.Count == 0);
+
+        pc.Close();
     }
 
     private static void Find5()
     {
-        BPlusTreePaged tree = new BPlusTreePaged(2);
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
 
         for (int i = 5; i < 15; i++)
             for (int j = 0; j < 6; j++)
@@ -127,6 +141,8 @@ public class BPlusTreePagedUt
             Check(found.Count == 6);
             Check(found[0].GetKey().CompareTo(i) == 0);
         }
+
+        pc.Close();
     }
 
     private static void TestBPlusTreePagedFind()
@@ -147,14 +163,13 @@ public class BPlusTreePagedUt
 
     private static void DeleteInternal(int t, int dataCount, DeleteOrder order)
     {
-        BPlusTreePaged tree = new BPlusTreePaged(t);
-        for (int i = 0; i < dataCount; i++)
-            tree.Insert(new CustomClass4(i));
-
-        //Console.WriteLine(tree);
-
         if (order == DeleteOrder.Ascending)
         {
+            BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+            BPlusTreePaged tree = new BPlusTreePaged(t, pc);
+            for (int i = 0; i < dataCount; i++)
+                tree.Insert(new CustomClass4(i));
+
             for (int i = 0; i < dataCount; i++)
             {
                 int count = tree.Delete(i);
@@ -162,9 +177,17 @@ public class BPlusTreePagedUt
                 Check(count == 1);
                 CheckBPlusTreePagedValidity(tree, dataCount - i - 1);
             }
+
+            Check(tree.root == null);
+            pc.Close();
         }
         else if (order == DeleteOrder.Descending)
         {
+            BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+            BPlusTreePaged tree = new BPlusTreePaged(t, pc);
+            for (int i = 0; i < dataCount; i++)
+                tree.Insert(new CustomClass4(i));
+
             for (int i = dataCount - 1; i >= 0; i--)
             {
                 int count = tree.Delete(i);
@@ -172,15 +195,18 @@ public class BPlusTreePagedUt
                 Check(count == 1);
                 CheckBPlusTreePagedValidity(tree, i);
             }
+
+            Check(tree.root == null);
+            pc.Close();
         }
         else if (order == DeleteOrder.Random)
         {
-            int iteration = 0;
             for (int randomCount = 0; randomCount < 1000 * 100; randomCount += 1000)
             {
+                BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
                 //Console.WriteLine("iteration = " + iteration++);
 
-                tree = new BPlusTreePaged(t);
+                BPlusTreePaged tree = new BPlusTreePaged(t, pc);
                 for (int i = 0; i < dataCount; i++)
                     tree.Insert(new CustomClass4(i));
 
@@ -201,10 +227,12 @@ public class BPlusTreePagedUt
                     values.RemoveAt(valueIndex);
                     CheckBPlusTreePagedValidity(tree, tempDataCount);
                 }
+
+                Check(tree.root == null);
+
+                pc.Close();
             }
         }
-
-        Check(tree.root == null);
     }
 
     private static void TestBPlusTreePagedDelete()
@@ -230,7 +258,8 @@ public class BPlusTreePagedUt
 
     private static void TestBPlusTreePagedInsert()
     {
-        BPlusTreePaged tree = new BPlusTreePaged(2);
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
 
         List<int> values = new List<int>();
 
@@ -249,6 +278,7 @@ public class BPlusTreePagedUt
         //Console.WriteLine(tree);
 
         CheckBPlusTreePagedValidity(tree, 200);
+        pc.Close();
     }
 
     private static void CheckBPlusTreePagedValidity(BPlusTreePaged tree, int dataCount)
@@ -363,8 +393,47 @@ public class BPlusTreePagedUt
         CheckBPlusTreePagedValidity3_CheckOrderInternal(tree.root, new CustomClass4(-1));
     }
 
+    private static void TestPage1()
+    {
+        string filePath = "../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin";
+
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController(filePath);
+        BPlusTreePaged tree = pc.CreateTree(2);
+        pc.SaveTree(tree);
+        pc.Close();
+
+        pc = new BPlusTreePagedPageController(filePath);
+        tree = pc.LoadTree();
+        Check(tree.t == 2);
+        Check(tree.root == null);
+        pc.Close();
+    }
+
+    private static void TestPage2()
+    {
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePaged tree = pc.CreateTree(2);
+        pc.SaveTree(tree);
+        pc.Close();
+
+        pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        tree = pc.LoadTree();
+        Check(tree.t == 2);
+        Check(tree.root == null);
+        pc.Close();
+    }
+
+    private static void TestPage()
+    {
+        TestPage1();
+        //TestPage2();
+    }
+
     public static void Ut()
     {
-
+        TestPage();
+        TestBPlusTreePagedInsert();
+        TestBPlusTreePagedFind();
+        TestBPlusTreePagedDelete();
     }
 }

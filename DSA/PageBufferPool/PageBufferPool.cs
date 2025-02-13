@@ -29,6 +29,17 @@ public class RecordStreamWriter
         Buffer.BlockCopy(bytes, 0, buffer, currentPos, bytes.Length);
         currentPos += bytes.Length;
     }
+
+    public void WriteBool(bool b)
+    {
+        buffer[currentPos++] = b ? (byte)1 : (byte)0;
+    }
+
+    public void WriteRecord(RecordId rid)
+    {
+        WriteInt(rid.pageId);
+        WriteInt(rid.slotId);
+    }
 }
 
 public class RecordStreamReader
@@ -51,6 +62,18 @@ public class RecordStreamReader
         currentPos += bytes.Length;
 
         return BitConverter.ToInt32(bytes, 0);
+    }
+
+    public bool ReadBool()
+    {
+        return buffer[currentPos++] == 1;
+    }
+
+    public RecordId ReadRecord()
+    {
+        int pageId = ReadInt();
+        int slotId = ReadInt();
+        return new RecordId(pageId, slotId);
     }
 }
 
