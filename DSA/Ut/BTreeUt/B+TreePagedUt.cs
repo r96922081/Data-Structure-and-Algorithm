@@ -57,7 +57,7 @@ public class BPlusTreePagedUt
 
     private static void Find1()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
 
         BPlusTreePaged tree = new BPlusTreePaged(2, pc);
         for (int i = 1; i >= 1; i--)
@@ -75,7 +75,7 @@ public class BPlusTreePagedUt
 
     private static void Find2()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
         BPlusTreePaged tree = new BPlusTreePaged(2, pc);
         for (int i = 3; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
@@ -92,7 +92,7 @@ public class BPlusTreePagedUt
 
     private static void Find3()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
         BPlusTreePaged tree = new BPlusTreePaged(2, pc);
         for (int i = 4; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
@@ -109,7 +109,7 @@ public class BPlusTreePagedUt
 
     private static void Find4()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
         BPlusTreePaged tree = new BPlusTreePaged(2, pc);
         for (int i = 100; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
@@ -126,7 +126,7 @@ public class BPlusTreePagedUt
 
     private static void Find5()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
         BPlusTreePaged tree = new BPlusTreePaged(2, pc);
 
         for (int i = 5; i < 15; i++)
@@ -165,7 +165,7 @@ public class BPlusTreePagedUt
     {
         if (order == DeleteOrder.Ascending)
         {
-            BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+            BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
             BPlusTreePaged tree = new BPlusTreePaged(t, pc);
             for (int i = 0; i < dataCount; i++)
                 tree.Insert(new CustomClass4(i));
@@ -183,7 +183,7 @@ public class BPlusTreePagedUt
         }
         else if (order == DeleteOrder.Descending)
         {
-            BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+            BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
             BPlusTreePaged tree = new BPlusTreePaged(t, pc);
             for (int i = 0; i < dataCount; i++)
                 tree.Insert(new CustomClass4(i));
@@ -203,7 +203,7 @@ public class BPlusTreePagedUt
         {
             for (int randomCount = 0; randomCount < 1000 * 100; randomCount += 1000)
             {
-                BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+                BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
                 //Console.WriteLine("iteration = " + iteration++);
 
                 BPlusTreePaged tree = new BPlusTreePaged(t, pc);
@@ -258,7 +258,7 @@ public class BPlusTreePagedUt
 
     private static void TestBPlusTreePagedInsert()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
         BPlusTreePaged tree = new BPlusTreePaged(2, pc);
 
         List<int> values = new List<int>();
@@ -397,12 +397,12 @@ public class BPlusTreePagedUt
     {
         string filePath = "../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin";
 
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController(filePath);
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController(filePath, 2);
         BPlusTreePaged tree = pc.CreateTree(2);
         pc.SaveTree(tree);
         pc.Close();
 
-        pc = new BPlusTreePagedPageController(filePath);
+        pc = new BPlusTreePagedPageController(filePath, 2);
         tree = pc.LoadTree();
         Check(tree.t == 2);
         Check(tree.root == null);
@@ -411,12 +411,12 @@ public class BPlusTreePagedUt
 
     private static void TestPage2()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
         BPlusTreePaged tree = pc.CreateTree(2);
         pc.SaveTree(tree);
         pc.Close();
 
-        pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin");
+        pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
         tree = pc.LoadTree();
         Check(tree.t == 2);
         Check(tree.root == null);
