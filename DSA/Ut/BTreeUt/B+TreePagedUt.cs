@@ -29,6 +29,35 @@ public class CustomClass4 : IBPlusTreePagedData
         return value;
     }
 
+    public override void Save(BPlusTreePagedPageController pc)
+    {
+        RecordStreamWriter writer = pc.GetRecordStreamWriter(rid);
+        writer.WriteBool(leftDataRid != null);
+        writer.WriteRecord(leftDataRid);
+        writer.WriteBool(rightDataRid != null);
+        writer.WriteRecord(rightDataRid);
+
+        // data
+        writer.WriteInt(value);
+    }
+
+    public override IBPlusTreePagedData Load(BPlusTreePagedPageController pc)
+    {
+        CustomClass4 ret = new CustomClass4();
+        RecordStreamReader reader = pc.GetRecordStreamReader(rid);
+        bool hasLeftData = reader.ReadBool();
+        if (hasLeftData)
+            ret.leftDataRid = reader.ReadRecord();
+        bool hasRightData = reader.ReadBool();
+        if (hasRightData)
+            ret.rightDataRid = reader.ReadRecord();
+
+        // data
+        ret.value = reader.ReadInt();
+
+        return ret;
+    }
+
     public int CompareTo(IBPlusTreePagedData? other)
     {
         if (other == null)
@@ -393,17 +422,17 @@ public class BPlusTreePagedUt
         CheckBPlusTreePagedValidity3_CheckOrderInternal(tree.root, new CustomClass4(-1));
     }
 
+    private static string filePath = "../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin";
+
     private static void TestPage1()
     {
-        string filePath = "../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin";
-
         BPlusTreePagedPageController pc = new BPlusTreePagedPageController(filePath, 2);
         BPlusTreePaged tree = pc.CreateTree(2);
-        pc.SaveTree(tree);
+        tree.Save(pc);
         pc.Close();
 
         pc = new BPlusTreePagedPageController(filePath, 2);
-        tree = pc.LoadTree();
+        tree = BPlusTreePaged.LoadTree(pc);
         Check(tree.t == 2);
         Check(tree.root == null);
         pc.Close();
@@ -411,13 +440,13 @@ public class BPlusTreePagedUt
 
     private static void TestPage2()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
+        BPlusTreePagedPageController pc = new BPlusTreePagedPageController(filePath, 2);
         BPlusTreePaged tree = pc.CreateTree(2);
-        pc.SaveTree(tree);
+        tree.Save(pc);
         pc.Close();
 
-        pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
-        tree = pc.LoadTree();
+        pc = new BPlusTreePagedPageController(filePath, 2);
+        tree = BPlusTreePaged.LoadTree(pc);
         Check(tree.t == 2);
         Check(tree.root == null);
         pc.Close();
@@ -426,7 +455,7 @@ public class BPlusTreePagedUt
     private static void TestPage()
     {
         TestPage1();
-        //TestPage2();
+        TestPage2();
     }
 
     public static void Ut()

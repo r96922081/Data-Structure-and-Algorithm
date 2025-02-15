@@ -1,11 +1,17 @@
 ﻿public abstract class IBPlusTreePagedData
 {
     public RecordId rid = null;
+    public RecordId leftDataRid = null;
+    public RecordId rightDataRid = null;
+
     public IBPlusTreePagedData leftData = null;
     public IBPlusTreePagedData rightData = null;
 
     public abstract IComparable GetKey();
     public abstract IBPlusTreePagedData CloneKeyOnly();
+    public abstract void Save(BPlusTreePagedPageController pc);
+    public abstract IBPlusTreePagedData Load(BPlusTreePagedPageController pc);
+
     public abstract object GetData();
     public abstract string ToString();
 }
@@ -15,18 +21,22 @@ public class BPlusTreePagedPageController
     public enum PageTypeEnum
     {
         Tree,
-        Node,
+        InternalNode,
+        Leaf,
         Key
     }
+
+    private int ridSize = 4 + 1; // 1 = bool indicate null or not
 
     PageBufferPool pm = null;
 
     public BPlusTreePagedPageController(string filePath, int t)
     {
         PageType treeType = new PageType((int)PageTypeEnum.Tree, 20);
-        PageType nodeType = new PageType((int)PageTypeEnum.Node, 50 + t * 5 * 12);
+        PageType internalNodeType = new PageType((int)PageTypeEnum.InternalNode, 50 + t * 4 * ridSize);
+        PageType leafType = new PageType((int)PageTypeEnum.Leaf, 50 + t * 2 * ridSize);
 
-        pm = PageBufferPool.Create(filePath, 1024 * 4, 100, new List<PageType>() { treeType, nodeType });
+        pm = PageBufferPool.Create(filePath, 1024 * 10, 100, new List<PageType>() { treeType, internalNodeType, leafType });
     }
 
     public void Close()
@@ -38,7 +48,7 @@ public class BPlusTreePagedPageController
     {
         BPlusTreePaged tree = new BPlusTreePaged(t, this);
         tree.rid = pm.AllocateRecord((int)PageTypeEnum.Tree);
-        SaveTree(tree);
+        tree.Save(this);
 
         return tree;
     }
@@ -49,25 +59,14 @@ public class BPlusTreePagedPageController
         return node;
     }
 
-    public void SaveTree(BPlusTreePaged tree)
+    public RecordStreamReader GetRecordStreamReader(RecordId rid)
     {
-        RecordStreamWriter writer = pm.GetRecordStreamWriter(tree.rid);
-        writer.WriteInt(tree.t);
-        writer.WriteRecord(tree.rid);
-        writer.WriteBool(tree.root != null);
+        return pm.GetRecordStreamReader(rid);
     }
 
-    public BPlusTreePaged LoadTree()
+    public RecordStreamWriter GetRecordStreamWriter(RecordId rid)
     {
-        RecordId rid = new RecordId(0, 0);
-
-        RecordStreamReader reader = pm.GetRecordStreamReader(rid);
-        int t = reader.ReadInt();
-        BPlusTreePaged tree = new BPlusTreePaged(t, this);
-        tree.rid = reader.ReadRecord();
-        if (reader.ReadBool())
-            ;
-        return tree;
+        return pm.GetRecordStreamWriter(rid);
     }
 }
 
@@ -474,6 +473,27 @@ public class BPlusTreePaged
         }
 
         return true;
+    }
+
+    public void Save(BPlusTreePagedPageController pc)
+    {
+        RecordStreamWriter writer = pc.GetRecordStreamWriter(rid);
+        writer.WriteInt(t);
+        writer.WriteRecord(rid);
+        writer.WriteBool(root != null);
+    }
+
+    public static BPlusTreePaged LoadTree(BPlusTreePagedPageController pc)
+    {
+        RecordId rid = new RecordId(0, 0);
+
+        RecordStreamReader reader = pc.GetRecordStreamReader(rid);
+        int t = reader.ReadInt();
+        BPlusTreePaged tree = new BPlusTreePaged(t, pc);
+        tree.rid = reader.ReadRecord();
+        if (reader.ReadBool())
+            ;
+        return tree;
     }
 
     private int getString(int level, BPlusTreePagedNode currentNode, List<List<string>> nodeStringByLevel)
