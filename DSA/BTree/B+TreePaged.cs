@@ -7,36 +7,84 @@
     public IBPlusTreePagedData leftData = null;
     public IBPlusTreePagedData rightData = null;
 
+
+    public void Save(BPlusTreePagedPageController pc)
+    {
+        RecordStreamWriter writer = pc.GetRecordStreamWriter(rid);
+        SubclassSave(pc);
+
+        writer.WriteRecord(leftDataRid);
+        writer.WriteRecord(rightDataRid);
+    }
+
+    public IBPlusTreePagedData Load(RecordId rid, BPlusTreePagedPageController pc)
+    {
+        IBPlusTreePagedData data = SubclassLoad(pc);
+
+        data.rid = rid;
+        RecordStreamReader reader = pc.GetRecordStreamReader(rid);
+        data.leftDataRid = reader.ReadRecord();
+        data.rightDataRid = reader.ReadRecord();
+
+        return data;
+    }
+
+    public void SetLeftData(IBPlusTreePagedData leftData)
+    {
+        if (leftData == null)
+        {
+            this.leftData = null;
+            leftDataRid = null;
+        }
+        else
+        {
+            this.leftData = leftData;
+            leftDataRid = leftData.rid;
+        }
+    }
+
+    public void SetRightData(IBPlusTreePagedData rightData)
+    {
+        if (rightData == null)
+        {
+            this.rightData = null;
+            rightDataRid = null;
+        }
+        else
+        {
+            this.rightData = rightData;
+            rightDataRid = rightData.rid;
+        }
+    }
+
     public abstract IComparable GetKey();
     public abstract IBPlusTreePagedData CloneKeyOnly();
-    public abstract void Save(BPlusTreePagedPageController pc);
-    public abstract IBPlusTreePagedData Load(BPlusTreePagedPageController pc);
+    public abstract void SubclassSave(BPlusTreePagedPageController pc);
+    public abstract IBPlusTreePagedData SubclassLoad(BPlusTreePagedPageController pc);
 
     public abstract object GetData();
     public abstract string ToString();
 }
 
+public enum PageTypeEnum
+{
+    Tree,
+    Node,
+    Key
+}
+
 public class BPlusTreePagedPageController
 {
-    public enum PageTypeEnum
-    {
-        Tree,
-        InternalNode,
-        Leaf,
-        Key
-    }
-
-    private int ridSize = 4 + 1; // 1 = bool indicate null or not
+    private int ridSize = 8 + 1; // 1 = bool indicate null or not
 
     PageBufferPool pm = null;
 
     public BPlusTreePagedPageController(string filePath, int t)
     {
         PageType treeType = new PageType((int)PageTypeEnum.Tree, 20);
-        PageType internalNodeType = new PageType((int)PageTypeEnum.InternalNode, 50 + t * 4 * ridSize);
-        PageType leafType = new PageType((int)PageTypeEnum.Leaf, 50 + t * 2 * ridSize);
+        PageType nodeType = new PageType((int)PageTypeEnum.Node, 50 + t * 4 * ridSize);
 
-        pm = PageBufferPool.Create(filePath, 1024 * 10, 100, new List<PageType>() { treeType, internalNodeType, leafType });
+        pm = PageBufferPool.Create(filePath, 1024 * 10, 100, new List<PageType>() { treeType, nodeType });
     }
 
     public void Close()
@@ -53,9 +101,15 @@ public class BPlusTreePagedPageController
         return tree;
     }
 
+    public RecordId AllocateRecord(int type)
+    {
+        return pm.AllocateRecord(type);
+    }
+
     public BPlusTreePagedNode CreateNode(List<IBPlusTreePagedData> keys)
     {
-        BPlusTreePagedNode node = new BPlusTreePagedNode(keys, this);
+        RecordId rid = pm.AllocateRecord((int)PageTypeEnum.Node);
+        BPlusTreePagedNode node = new BPlusTreePagedNode(keys, rid);
         return node;
     }
 
@@ -72,17 +126,20 @@ public class BPlusTreePagedPageController
 
 public class BPlusTreePaged
 {
-    // Serialized fields
     public RecordId rid = null;
     public int t;
+
+    public RecordId rootRid = null;
     public BPlusTreePagedNode root = null;
 
-    // Non-Serialized fields
+    public Dictionary<RecordId, object> ridCache = new Dictionary<RecordId, object>();
+
     public BPlusTreePagedPageController pc = null;
 
     public BPlusTreePaged(int t, BPlusTreePagedPageController pc)
     {
         this.t = t;
+        this.pc = pc;
     }
 
     public void Insert(IBPlusTreePagedData key)
@@ -90,10 +147,45 @@ public class BPlusTreePaged
         if (t < 2)
             throw new Exception();
 
-        if (root == null)
-            root = new BPlusTreePagedNode(new List<IBPlusTreePagedData>(), pc);
+        if (GetRoot() == null)
+            SetRoot(new BPlusTreePagedNode(new List<IBPlusTreePagedData>(), pc.AllocateRecord((int)PageTypeEnum.Node)));
 
-        FindLeafToInsert(root, key);
+        FindLeafToInsert(GetRoot(), key);
+    }
+
+    public BPlusTreePagedNode GetRoot()
+    {
+        root = GetNode(rootRid);
+        return root;
+    }
+
+    public BPlusTreePagedNode GetNode(RecordId rid)
+    {
+        if (rid == null)
+            return null;
+
+        if (ridCache.ContainsKey(rid))
+            return (BPlusTreePagedNode)ridCache[rid];
+        else
+        {
+            BPlusTreePagedNode n = BPlusTreePagedNode.Load(rid, pc);
+            ridCache[rid] = n;
+            return n;
+        }
+    }
+
+    private void SetRoot(BPlusTreePagedNode n)
+    {
+        if (n == null)
+        {
+            root = null;
+            rootRid = null;
+        }
+        else
+        {
+            root = n;
+            rootRid = n.rid;
+        }
     }
 
     private void InsertUpward(BPlusTreePagedNode node, IBPlusTreePagedData key, BPlusTreePagedNode left, BPlusTreePagedNode right)
@@ -137,22 +229,22 @@ public class BPlusTreePaged
                 {
                     IBPlusTreePagedData leftData = node.keys[i - 1];
                     if (leftData.rightData != null)
-                        leftData.rightData.leftData = key;
+                        leftData.rightData.SetLeftData(key);
 
-                    key.rightData = leftData.rightData;
-                    key.leftData = leftData;
-                    leftData.rightData = key;
+                    key.SetRightData(leftData.rightData);
+                    key.SetLeftData(leftData);
+                    leftData.SetRightData(key);
                 }
                 else
                 {
                     IBPlusTreePagedData originalData = node.keys[i];
 
                     if (originalData.leftData != null)
-                        originalData.leftData.rightData = key;
+                        originalData.leftData.SetRightData(key);
 
-                    key.leftData = originalData.leftData;
-                    key.rightData = originalData;
-                    originalData.leftData = key;
+                    key.SetLeftData(originalData.leftData);
+                    key.SetRightData(originalData);
+                    originalData.SetLeftData(key);
                 }
             }
 
@@ -180,31 +272,31 @@ public class BPlusTreePaged
         // leaf
         if (node.children.Count == 0)
         {
-            left = new BPlusTreePagedNode(node.keys.GetRange(0, t), pc);
-            right = new BPlusTreePagedNode(node.keys.GetRange(t, t), pc);
+            left = new BPlusTreePagedNode(node.keys.GetRange(0, t), pc.AllocateRecord((int)PageTypeEnum.Node));
+            right = new BPlusTreePagedNode(node.keys.GetRange(t, t), pc.AllocateRecord((int)PageTypeEnum.Node));
             key = key.CloneKeyOnly();
         }
         else // internal node works in the same way as BTree
         {
-            left = new BPlusTreePagedNode(node.keys.GetRange(0, t), pc);
-            right = new BPlusTreePagedNode(node.keys.GetRange(t + 1, t - 1), pc);
+            left = new BPlusTreePagedNode(node.keys.GetRange(0, t), pc.AllocateRecord((int)PageTypeEnum.Node));
+            right = new BPlusTreePagedNode(node.keys.GetRange(t + 1, t - 1), pc.AllocateRecord((int)PageTypeEnum.Node));
 
             left.children.AddRange(node.children.GetRange(0, t + 1));
             right.children.AddRange(node.children.GetRange(t + 1, t));
 
             foreach (BPlusTreePagedNode child in left.children)
-                child.parent = left;
+                child.SetParent(left);
             foreach (BPlusTreePagedNode child in right.children)
-                child.parent = right;
+                child.SetParent(right);
         }
 
         if (node.parent == null)
         {
-            root = root = new BPlusTreePagedNode(new List<IBPlusTreePagedData>(), pc);
-            node.parent = root;
+            SetRoot(new BPlusTreePagedNode(new List<IBPlusTreePagedData>(), pc.AllocateRecord((int)PageTypeEnum.Node)));
+            node.SetParent(root);
         }
-        left.parent = node.parent;
-        right.parent = node.parent;
+        left.SetParent(node.parent);
+        right.SetParent(node.parent);
 
         InsertUpward(node.parent, key, left, right);
     }
@@ -328,7 +420,7 @@ public class BPlusTreePaged
         node.keys.RemoveAt(index);
 
         if (node == root && node.keys.Count == 0)
-            root = null;
+            SetRoot(null);
 
         return true;
     }
@@ -352,7 +444,7 @@ public class BPlusTreePaged
 
         // root case
         if (node == root && node.keys.Count == 0)
-            root = left;
+            SetRoot(left);
     }
 
     private bool DeleteInternal(BPlusTreePagedNode node, IComparable key)
@@ -480,7 +572,7 @@ public class BPlusTreePaged
         RecordStreamWriter writer = pc.GetRecordStreamWriter(rid);
         writer.WriteInt(t);
         writer.WriteRecord(rid);
-        writer.WriteBool(root != null);
+        writer.WriteRecord(rootRid);
     }
 
     public static BPlusTreePaged LoadTree(BPlusTreePagedPageController pc)
@@ -491,8 +583,8 @@ public class BPlusTreePaged
         int t = reader.ReadInt();
         BPlusTreePaged tree = new BPlusTreePaged(t, pc);
         tree.rid = reader.ReadRecord();
-        if (reader.ReadBool())
-            ;
+        tree.rootRid = reader.ReadRecord();
+
         return tree;
     }
 
@@ -546,17 +638,23 @@ public class BPlusTreePagedNode
 {
     // Serialized fields
     public RecordId rid = null;
+    public RecordId parentRid = null;
+
     public BPlusTreePagedNode parent = null;
-    public BPlusTreePagedNode left = null;
-    public BPlusTreePagedNode right = null;
     public List<IBPlusTreePagedData> keys = new List<IBPlusTreePagedData>();
     public List<BPlusTreePagedNode> children = new List<BPlusTreePagedNode>();
 
     // Non-Serialized fields
     public BPlusTreePagedPageController pc;
 
-    public BPlusTreePagedNode(List<IBPlusTreePagedData> keys, BPlusTreePagedPageController pc)
+    public BPlusTreePagedNode(RecordId rid)
     {
+        this.rid = rid;
+    }
+
+    public BPlusTreePagedNode(List<IBPlusTreePagedData> keys, RecordId rid)
+    {
+        this.rid = rid;
         this.keys = keys;
     }
 
@@ -568,6 +666,43 @@ public class BPlusTreePagedNode
     public bool IsInternal()
     {
         return !IsLeaf();
+    }
+
+    public void Save(BPlusTreePagedPageController pc)
+    {
+        RecordStreamWriter writer = pc.GetRecordStreamWriter(rid);
+        writer.WriteRecord(parentRid);
+
+        writer.WriteInt(keys.Count);
+        for (int i = 0; i < keys.Count; i++)
+            keys[i].Save(pc);
+
+        writer.WriteInt(children.Count);
+        for (int i = 0; i < children.Count; i++)
+            writer.WriteRecord(children[i].rid);
+    }
+
+    public static BPlusTreePagedNode Load(RecordId rid, BPlusTreePagedPageController pc)
+    {
+        BPlusTreePagedNode n = new BPlusTreePagedNode(rid);
+        RecordStreamReader reader = pc.GetRecordStreamReader(rid);
+        n.parentRid = reader.ReadRecord();
+
+        return n;
+    }
+
+    public void SetParent(BPlusTreePagedNode parent)
+    {
+        if (parent == null)
+        {
+            this.parent = null;
+            parentRid = null;
+        }
+        else
+        {
+            this.parent = parent;
+            parentRid = parent.rid;
+        }
     }
 
     public override string ToString()

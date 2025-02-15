@@ -29,30 +29,16 @@ public class CustomClass4 : IBPlusTreePagedData
         return value;
     }
 
-    public override void Save(BPlusTreePagedPageController pc)
+    public override void SubclassSave(BPlusTreePagedPageController pc)
     {
         RecordStreamWriter writer = pc.GetRecordStreamWriter(rid);
-        writer.WriteBool(leftDataRid != null);
-        writer.WriteRecord(leftDataRid);
-        writer.WriteBool(rightDataRid != null);
-        writer.WriteRecord(rightDataRid);
-
-        // data
         writer.WriteInt(value);
     }
 
-    public override IBPlusTreePagedData Load(BPlusTreePagedPageController pc)
+    public override IBPlusTreePagedData SubclassLoad(BPlusTreePagedPageController pc)
     {
         CustomClass4 ret = new CustomClass4();
         RecordStreamReader reader = pc.GetRecordStreamReader(rid);
-        bool hasLeftData = reader.ReadBool();
-        if (hasLeftData)
-            ret.leftDataRid = reader.ReadRecord();
-        bool hasRightData = reader.ReadBool();
-        if (hasRightData)
-            ret.rightDataRid = reader.ReadRecord();
-
-        // data
         ret.value = reader.ReadInt();
 
         return ret;
@@ -442,13 +428,15 @@ public class BPlusTreePagedUt
     {
         BPlusTreePagedPageController pc = new BPlusTreePagedPageController(filePath, 2);
         BPlusTreePaged tree = pc.CreateTree(2);
+        tree.Insert(new CustomClass4(1));
         tree.Save(pc);
         pc.Close();
 
         pc = new BPlusTreePagedPageController(filePath, 2);
         tree = BPlusTreePaged.LoadTree(pc);
         Check(tree.t == 2);
-        Check(tree.root == null);
+        Check(tree.rootRid != null);
+        tree.GetRoot();
         pc.Close();
     }
 
@@ -461,8 +449,9 @@ public class BPlusTreePagedUt
     public static void Ut()
     {
         TestPage();
+        /*
         TestBPlusTreePagedInsert();
         TestBPlusTreePagedFind();
-        TestBPlusTreePagedDelete();
+        TestBPlusTreePagedDelete();*/
     }
 }

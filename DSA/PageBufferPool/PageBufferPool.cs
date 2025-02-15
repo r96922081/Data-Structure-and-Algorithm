@@ -8,6 +8,27 @@
         this.pageId = pageId;
         this.slotId = slotId;
     }
+
+    public override bool Equals(object obj)
+    {
+        if (obj == null)
+            return false;
+
+        if (!(obj is RecordId))
+            return false;
+
+        return Equals((RecordId)obj);
+    }
+
+    public bool Equals(RecordId other)
+    {
+        return pageId == other.pageId && slotId == other.slotId;
+    }
+
+    public override int GetHashCode()
+    {
+        return pageId + 100000 + slotId;
+    }
 }
 
 public class RecordStreamWriter
@@ -37,8 +58,13 @@ public class RecordStreamWriter
 
     public void WriteRecord(RecordId rid)
     {
-        WriteInt(rid.pageId);
-        WriteInt(rid.slotId);
+        WriteBool(rid != null);
+
+        if (rid != null)
+        {
+            WriteInt(rid.pageId);
+            WriteInt(rid.slotId);
+        }
     }
 }
 
@@ -71,6 +97,9 @@ public class RecordStreamReader
 
     public RecordId ReadRecord()
     {
+        if (ReadBool() == false)
+            return null;
+
         int pageId = ReadInt();
         int slotId = ReadInt();
         return new RecordId(pageId, slotId);
