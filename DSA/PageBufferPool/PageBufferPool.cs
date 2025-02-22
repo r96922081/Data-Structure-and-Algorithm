@@ -311,7 +311,7 @@ public class PageBufferPool
     private BinaryReader br;
     private FileStream fs;
 
-    private int headerSize = 1024;
+    private int headerSize = 4096;
     private int pageSize = -1;
     private int pageCount = 0;
     private int pageCacheCount = 0;
@@ -321,7 +321,7 @@ public class PageBufferPool
 
 
     /*
-     PM header:
+     pageBufferPool header:
      
      int headerSize
      int pageCount
@@ -337,7 +337,7 @@ public class PageBufferPool
 
      */
 
-    public static PageBufferPool Create(string filePath, int pageSize, int pageCacheCount, List<PageType> pageTypes)
+    public static PageBufferPool Create(string filePath, int pageSize, int pageCacheCount)
     {
         PageBufferPool pm = new PageBufferPool();
         pm.fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
@@ -346,18 +346,28 @@ public class PageBufferPool
         pm.pageSize = pageSize;
         pm.pageCacheCount = pageCacheCount;
 
-        pm.pageTypes.Add(-1, new PageType(-1, pageSize / 2));
-
-        foreach (PageType p in pageTypes)
-        {
-            if (p.type < 0)
-                throw new Exception("type < 0 are reserved");
-            pm.pageTypes.Add(p.type, p);
-        }
-
-        pm.headerSize = 16 + 8 * pm.pageTypes.Count;
-
         return pm;
+    }
+
+    public void AddPageType(PageType type)
+    {
+        pageTypes.Add(type.type, type);
+    }
+
+    private void WriteHeader()
+    {
+        bw.BaseStream.Seek(0, SeekOrigin.Begin);
+        bw.Write(headerSize);
+        bw.Write(pageCount);
+        bw.Write(pageCacheCount);
+        bw.Write(pageSize);
+        bw.Write(pageTypes.Count);
+
+        foreach (PageType type in pageTypes.Values)
+        {
+            bw.Write(type.type);
+            bw.Write(type.recordSize);
+        }
     }
 
     public static PageBufferPool Load(string filePath)
@@ -391,22 +401,6 @@ public class PageBufferPool
         bw.Seek(headerSize + p.index * pageSize, SeekOrigin.Begin);
         bw.Write(p.buffer, 0, p.pageSize);
         p.dirty = false;
-    }
-
-    private void WriteHeader()
-    {
-        bw.BaseStream.Seek(0, SeekOrigin.Begin);
-        bw.Write(headerSize);
-        bw.Write(pageCount);
-        bw.Write(pageCacheCount);
-        bw.Write(pageSize);
-        bw.Write(pageTypes.Count);
-
-        foreach (PageType type in pageTypes.Values)
-        {
-            bw.Write(type.type);
-            bw.Write(type.recordSize);
-        }
     }
 
     public void Close()

@@ -22,11 +22,10 @@ public class PageBufferPoolUt
         RecordStreamWriter w = null;
         RecordStreamReader r = null;
 
-        PageType t1 = new PageType((int)PageTypeEnum.type1, 20);
-        PageType t2 = new PageType((int)PageTypeEnum.type2, 30);
+        PageBufferPool pm = PageBufferPool.Create(filePath, pageSize, pageCacheCount);
+        pm.AddPageType(new PageType((int)PageTypeEnum.type1, 20));
+        pm.AddPageType(new PageType((int)PageTypeEnum.type2, 30));
 
-
-        PageBufferPool pm = PageBufferPool.Create(filePath, pageSize, pageCacheCount, new List<PageType>() { t1, t2 });
         RecordId rid1 = pm.AllocateRecord((int)PageTypeEnum.type1);
         w = pm.GetRecordStreamWriter(rid1);
         w.WriteInt(7);
@@ -73,9 +72,9 @@ public class PageBufferPoolUt
         RecordStreamWriter w = null;
         RecordStreamReader r = null;
 
-        PageType t1 = new PageType((int)PageTypeEnum.type1, 20);
+        PageBufferPool pm = PageBufferPool.Create(filePath, pageSize, pageCacheCount);
+        pm.AddPageType(new PageType((int)PageTypeEnum.type1, 20));
 
-        PageBufferPool pm = PageBufferPool.Create(filePath, pageSize, pageCacheCount, new List<PageType>() { t1 });
         RecordId rid1 = pm.AllocateRecord((int)PageTypeEnum.type1);
         w = pm.GetRecordStreamWriter(rid1);
         w.WriteInt(7);
@@ -107,24 +106,24 @@ public class PageBufferPoolUt
         RecordStreamWriter w = null;
         RecordStreamReader r = null;
 
-        PageType t1 = new PageType((int)PageTypeEnum.type1, 20);
-        PageType t2 = new PageType((int)PageTypeEnum.type2, 30);
+        PageBufferPool pageBufferPool = PageBufferPool.Create(filePath, pageSize, pageCacheCount);
+        pageBufferPool.AddPageType(new PageType((int)PageTypeEnum.type1, 20));
+        pageBufferPool.AddPageType(new PageType((int)PageTypeEnum.type2, 30));
 
-        PageBufferPool pm = PageBufferPool.Create(filePath, pageSize, pageCacheCount, new List<PageType>() { t1, t2 });
         List<RecordId> rids = new List<RecordId>();
         for (int i = 0; i < 100; i++)
         {
-            rids.Add(pm.AllocateRecord((int)PageTypeEnum.type1));
-            rids.Add(pm.AllocateRecord((int)PageTypeEnum.type2));
+            rids.Add(pageBufferPool.AllocateRecord((int)PageTypeEnum.type1));
+            rids.Add(pageBufferPool.AllocateRecord((int)PageTypeEnum.type2));
         }
 
         for (int i = 0; i < rids.Count; i++)
         {
-            w = pm.GetRecordStreamWriter(rids[i]);
+            w = pageBufferPool.GetRecordStreamWriter(rids[i]);
             w.WriteInt(i);
         }
 
-        pm.Close();
+        pageBufferPool.Close();
 
         PageBufferPool pm2 = PageBufferPool.Load(filePath);
         for (int i = 0; i < rids.Count; i++)

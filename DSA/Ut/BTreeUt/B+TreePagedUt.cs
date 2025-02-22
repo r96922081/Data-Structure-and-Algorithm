@@ -29,16 +29,16 @@ public class CustomClass4 : IBPlusTreePagedData
         return value;
     }
 
-    public override void SubclassSave(BPlusTreePagedPageController pc)
+    public override void SubclassSave(PageBufferPool pageBufferPool)
     {
-        RecordStreamWriter writer = pc.GetRecordStreamWriter(rid);
+        RecordStreamWriter writer = pageBufferPool.GetRecordStreamWriter(rid);
         writer.WriteInt(value);
     }
 
-    public override IBPlusTreePagedData SubclassLoad(BPlusTreePagedPageController pc)
+    public override IBPlusTreePagedData SubclassLoad(PageBufferPool pageBufferPool)
     {
         CustomClass4 ret = new CustomClass4();
-        RecordStreamReader reader = pc.GetRecordStreamReader(rid);
+        RecordStreamReader reader = pageBufferPool.GetRecordStreamReader(rid);
         ret.value = reader.ReadInt();
 
         return ret;
@@ -72,9 +72,9 @@ public class BPlusTreePagedUt
 
     private static void Find1()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
+        PageBufferPool pageBufferPool = PageBufferPool.Create("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 1024, 1);
 
-        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
+        BPlusTreePaged tree = new BPlusTreePaged(2, pageBufferPool);
         for (int i = 1; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
 
@@ -85,13 +85,13 @@ public class BPlusTreePagedUt
         found = tree.Find(2);
         Check(found.Count == 0);
 
-        pc.Close();
+        pageBufferPool.Close();
     }
 
     private static void Find2()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
-        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
+        PageBufferPool pageBufferPool = PageBufferPool.Create("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 1024, 2);
+        BPlusTreePaged tree = new BPlusTreePaged(2, pageBufferPool);
         for (int i = 3; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
 
@@ -102,13 +102,13 @@ public class BPlusTreePagedUt
         found = tree.Find(2);
         Check(found.Count == 0);
 
-        pc.Close();
+        pageBufferPool.Close();
     }
 
     private static void Find3()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
-        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
+        PageBufferPool pageBufferPool = PageBufferPool.Create("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 1024, 2);
+        BPlusTreePaged tree = new BPlusTreePaged(2, pageBufferPool);
         for (int i = 4; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
 
@@ -119,13 +119,13 @@ public class BPlusTreePagedUt
         found = tree.Find(2);
         Check(found.Count == 0);
 
-        pc.Close();
+        pageBufferPool.Close();
     }
 
     private static void Find4()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
-        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
+        PageBufferPool pageBufferPool = PageBufferPool.Create("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 1024, 2);
+        BPlusTreePaged tree = new BPlusTreePaged(2, pageBufferPool);
         for (int i = 100; i >= 1; i--)
             tree.Insert(new CustomClass4(1));
 
@@ -136,13 +136,13 @@ public class BPlusTreePagedUt
         found = tree.Find(2);
         Check(found.Count == 0);
 
-        pc.Close();
+        pageBufferPool.Close();
     }
 
     private static void Find5()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
-        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
+        PageBufferPool pageBufferPool = PageBufferPool.Create("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 1024, 2);
+        BPlusTreePaged tree = new BPlusTreePaged(2, pageBufferPool);
 
         for (int i = 5; i < 15; i++)
             for (int j = 0; j < 6; j++)
@@ -157,7 +157,7 @@ public class BPlusTreePagedUt
             Check(found[0].GetKey().CompareTo(i) == 0);
         }
 
-        pc.Close();
+        pageBufferPool.Close();
     }
 
     private static void TestBPlusTreePagedFind()
@@ -180,8 +180,8 @@ public class BPlusTreePagedUt
     {
         if (order == DeleteOrder.Ascending)
         {
-            BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
-            BPlusTreePaged tree = new BPlusTreePaged(t, pc);
+            PageBufferPool pageBufferPool = PageBufferPool.Create("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 1024, 2);
+            BPlusTreePaged tree = new BPlusTreePaged(t, pageBufferPool);
             for (int i = 0; i < dataCount; i++)
                 tree.Insert(new CustomClass4(i));
 
@@ -193,13 +193,13 @@ public class BPlusTreePagedUt
                 CheckBPlusTreePagedValidity(tree, dataCount - i - 1);
             }
 
-            Check(tree.root == null);
-            pc.Close();
+            Check(tree.GetRootRid() == null);
+            pageBufferPool.Close();
         }
         else if (order == DeleteOrder.Descending)
         {
-            BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
-            BPlusTreePaged tree = new BPlusTreePaged(t, pc);
+            PageBufferPool pageBufferPool = PageBufferPool.Create("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 1024, 2);
+            BPlusTreePaged tree = new BPlusTreePaged(t, pageBufferPool);
             for (int i = 0; i < dataCount; i++)
                 tree.Insert(new CustomClass4(i));
 
@@ -211,17 +211,17 @@ public class BPlusTreePagedUt
                 CheckBPlusTreePagedValidity(tree, i);
             }
 
-            Check(tree.root == null);
-            pc.Close();
+            Check(tree.GetRootRid() == null);
+            pageBufferPool.Close();
         }
         else if (order == DeleteOrder.Random)
         {
             for (int randomCount = 0; randomCount < 1000 * 100; randomCount += 1000)
             {
-                BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
+                PageBufferPool pageBufferPool = PageBufferPool.Create("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 1024, 2);
                 //Console.WriteLine("iteration = " + iteration++);
 
-                BPlusTreePaged tree = new BPlusTreePaged(t, pc);
+                BPlusTreePaged tree = new BPlusTreePaged(t, pageBufferPool);
                 for (int i = 0; i < dataCount; i++)
                     tree.Insert(new CustomClass4(i));
 
@@ -243,9 +243,9 @@ public class BPlusTreePagedUt
                     CheckBPlusTreePagedValidity(tree, tempDataCount);
                 }
 
-                Check(tree.root == null);
+                Check(tree.GetRootRid() == null);
 
-                pc.Close();
+                pageBufferPool.Close();
             }
         }
     }
@@ -273,8 +273,8 @@ public class BPlusTreePagedUt
 
     private static void TestBPlusTreePagedInsert()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 2);
-        BPlusTreePaged tree = new BPlusTreePaged(2, pc);
+        PageBufferPool pageBufferPool = PageBufferPool.Create("../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin", 1024, 1);
+        BPlusTreePaged tree = new BPlusTreePaged(2, pageBufferPool);
 
         List<int> values = new List<int>();
 
@@ -293,12 +293,12 @@ public class BPlusTreePagedUt
         //Console.WriteLine(tree);
 
         CheckBPlusTreePagedValidity(tree, 200);
-        pc.Close();
+        pageBufferPool.Close();
     }
 
     private static void CheckBPlusTreePagedValidity(BPlusTreePaged tree, int dataCount)
     {
-        if (tree.root == null)
+        if (tree.GetRootRid() == null)
             return;
 
         CheckBPlusTreePagedValidity1_KeyAndChildCount(tree);
@@ -309,58 +309,59 @@ public class BPlusTreePagedUt
 
     private static void CheckBPlusTreePagedValidity1_KeyAndChildCount(BPlusTreePaged tree)
     {
-        foreach (BPlusTreePagedNode n in tree.root.children)
-            CheckBPlusTreePagedValidity1_KeyAndChildCountInternal(tree, n);
+        for (int i = 0; i < tree.GetNode(tree.GetRootRid()).GetChildrenCount(); i++)
+            CheckBPlusTreePagedValidity1_KeyAndChildCountInternal(tree, tree.GetNode(tree.GetRootRid()).GetChild(i));
     }
 
-    private static void CheckBPlusTreePagedValidity1_KeyAndChildCountInternal(BPlusTreePaged tree, BPlusTreePagedNode n)
+    private static void CheckBPlusTreePagedValidity1_KeyAndChildCountInternal(BPlusTreePaged tree, RecordId recordId)
     {
+        BPlusTreePagedNode n = tree.GetNode(recordId);
         if (n == null)
             return;
 
-        if (n != tree.root)
-            Check(tree.t - 1 <= n.keys.Count && n.keys.Count <= 2 * tree.t - 1);
+        if (n.rid != tree.GetRootRid())
+            Check(tree.GetT() - 1 <= n.keys.Count && n.keys.Count <= 2 * tree.GetT() - 1);
 
-        if (n.children.Count != 0)
-            Check(n.keys.Count + 1 == n.children.Count);
+        if (n.GetChildrenCount() != 0)
+            Check(n.keys.Count + 1 == n.GetChildrenCount());
 
-        foreach (BPlusTreePagedNode child in n.children)
-            CheckBPlusTreePagedValidity1_KeyAndChildCountInternal(tree, child);
+        for (int i = 0; i < n.GetChildrenCount(); i++)
+            CheckBPlusTreePagedValidity1_KeyAndChildCountInternal(tree, n.GetChild(i));
     }
 
-    private static void CheckBPlusTreePagedValidity2_leafDepthInternal(BPlusTreePagedNode n, int prevLeafDepth, int FirstLeafDepth)
+    private static void CheckBPlusTreePagedValidity2_leafDepthInternal(BPlusTreePaged tree, BPlusTreePagedNode n, int prevLeafDepth, int FirstLeafDepth)
     {
         if (n.IsLeaf())
             Check(prevLeafDepth == FirstLeafDepth);
         else
         {
-            foreach (BPlusTreePagedNode child in n.children)
-                CheckBPlusTreePagedValidity2_leafDepthInternal(child, prevLeafDepth + 1, FirstLeafDepth);
+            for (int i = 0; i < n.GetChildrenCount(); i++)
+                CheckBPlusTreePagedValidity2_leafDepthInternal(tree, tree.GetNode(n.GetChild(i)), prevLeafDepth + 1, FirstLeafDepth);
         }
     }
 
     private static void CheckBPlusTreePagedValidity2_leafDepth(BPlusTreePaged tree)
     {
-        if (tree.root == null)
+        if (tree.GetRootRid() == null)
             return;
 
-        BPlusTreePagedNode firstChild = tree.root;
+        BPlusTreePagedNode firstChild = tree.GetNode(tree.GetRootRid());
         int depth = 0;
-        while (firstChild.children.Count != 0)
+        while (firstChild.GetChildrenCount() != 0)
         {
-            firstChild = firstChild.children[0];
+            firstChild = tree.GetNode(firstChild.GetChild(0));
             depth++;
         }
 
-        CheckBPlusTreePagedValidity2_leafDepthInternal(tree.root, 0, depth);
+        CheckBPlusTreePagedValidity2_leafDepthInternal(tree, tree.GetNode(tree.GetRootRid()), 0, depth);
     }
 
-    private static IBPlusTreePagedData CheckBPlusTreePagedValidity3_CheckOrderInternal(BPlusTreePagedNode node, IBPlusTreePagedData prevValue)
+    private static IBPlusTreePagedData CheckBPlusTreePagedValidity3_CheckOrderInternal(BPlusTreePaged tree, BPlusTreePagedNode node, IBPlusTreePagedData prevValue)
     {
-        for (int i = 0; i < node.children.Count; i++)
+        for (int i = 0; i < node.GetChildrenCount(); i++)
         {
             if (node.IsInternal())
-                prevValue = CheckBPlusTreePagedValidity3_CheckOrderInternal(node.children[i], prevValue);
+                prevValue = CheckBPlusTreePagedValidity3_CheckOrderInternal(tree, tree.GetNode(node.GetChild(i)), prevValue);
 
             if (i < node.keys.Count)
             {
@@ -375,12 +376,12 @@ public class BPlusTreePagedUt
 
     private static void CheckBPlusTreePagedValidity4_CheckLink(BPlusTreePaged tree, int dataCount)
     {
-        if (tree.root == null)
+        if (tree.GetRootRid() == null)
             return;
 
-        BPlusTreePagedNode firstLeaf = tree.root;
-        while (firstLeaf.children.Count != 0)
-            firstLeaf = firstLeaf.children[0];
+        BPlusTreePagedNode firstLeaf = tree.GetNode(tree.GetRootRid());
+        while (firstLeaf.GetChildrenCount() != 0)
+            firstLeaf = tree.GetNode(firstLeaf.GetChild(0));
 
         IBPlusTreePagedData currentData = firstLeaf.keys[0];
         IBPlusTreePagedData prevData = null;
@@ -405,39 +406,43 @@ public class BPlusTreePagedUt
 
     private static void CheckBPlusTreePagedValidity3_CheckOrder(BPlusTreePaged tree)
     {
-        CheckBPlusTreePagedValidity3_CheckOrderInternal(tree.root, new CustomClass4(-1));
+        CheckBPlusTreePagedValidity3_CheckOrderInternal(tree, tree.GetNode(tree.GetRootRid()), new CustomClass4(-1));
     }
 
     private static string filePath = "../../../Ut/BTreeUt/UtFiles/B+TreePagedUt.bin";
 
     private static void TestPage1()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController(filePath, 2);
-        BPlusTreePaged tree = pc.CreateTree(2);
-        tree.Save(pc);
-        pc.Close();
+        PageBufferPool pageBufferPool = PageBufferPool.Create(filePath, 1024, 1);
+        pageBufferPool.AddPageType(BPlusTreePaged_PageTypeFactory.GetTreeType());
+        pageBufferPool.AddPageType(BPlusTreePaged_PageTypeFactory.GetNodeType(2));
 
-        pc = new BPlusTreePagedPageController(filePath, 2);
-        tree = BPlusTreePaged.LoadTree(pc);
-        Check(tree.t == 2);
-        Check(tree.root == null);
-        pc.Close();
+        BPlusTreePaged tree = new BPlusTreePaged(2, pageBufferPool);
+        pageBufferPool.Close();
+
+        pageBufferPool = PageBufferPool.Load(filePath);
+        tree = BPlusTreePaged.LoadTree(pageBufferPool);
+        Check(tree.GetT() == 2);
+        Check(tree.GetRootRid() == null);
+        pageBufferPool.Close();
     }
 
     private static void TestPage2()
     {
-        BPlusTreePagedPageController pc = new BPlusTreePagedPageController(filePath, 2);
-        BPlusTreePaged tree = pc.CreateTree(2);
-        tree.Insert(new CustomClass4(1));
-        tree.Save(pc);
-        pc.Close();
+        PageBufferPool pageBufferPool = PageBufferPool.Create(filePath, 1024, 1);
+        pageBufferPool.AddPageType(BPlusTreePaged_PageTypeFactory.GetTreeType());
+        pageBufferPool.AddPageType(BPlusTreePaged_PageTypeFactory.GetNodeType(2));
 
-        pc = new BPlusTreePagedPageController(filePath, 2);
-        tree = BPlusTreePaged.LoadTree(pc);
-        Check(tree.t == 2);
-        Check(tree.rootRid != null);
-        tree.GetRoot();
-        pc.Close();
+        BPlusTreePaged tree = new BPlusTreePaged(2, pageBufferPool);
+        tree.Insert(new CustomClass4(77));
+        Console.WriteLine(tree);
+        pageBufferPool.Close();
+
+        pageBufferPool = PageBufferPool.Load(filePath);
+        tree = BPlusTreePaged.LoadTree(pageBufferPool);
+        Check(tree.GetT() == 2);
+        Check(tree.GetRootRid() != null);
+        pageBufferPool.Close();
     }
 
     private static void TestPage()
@@ -449,9 +454,9 @@ public class BPlusTreePagedUt
     public static void Ut()
     {
         TestPage();
-        /*
-        TestBPlusTreePagedInsert();
-        TestBPlusTreePagedFind();
-        TestBPlusTreePagedDelete();*/
+
+        //TestBPlusTreePagedInsert();
+        //TestBPlusTreePagedFind();
+        //TestBPlusTreePagedDelete();
     }
 }
