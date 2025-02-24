@@ -27,7 +27,7 @@
 
     public override int GetHashCode()
     {
-        return pageId + 100000 + slotId;
+        return pageId + 1000000 + slotId;
     }
 }
 
@@ -320,6 +320,12 @@ public class PageBufferPool
     private Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
 
 
+    // To avoid serialize from page everytime
+    // Add when (1) allocate record (2) custom class that reload record from page
+    // Remove when page is evicted
+    private Dictionary<int, Dictionary<int, object>> ridCache = new Dictionary<int, Dictionary<int, object>>();
+
+
     /*
      pageBufferPool header:
      
@@ -419,7 +425,7 @@ public class PageBufferPool
         fs.Close();
     }
 
-    public RecordId AllocateRecord(int type)
+    public RecordId AllocateRecord(int type, object o)
     {
         Page p = null;
 
@@ -438,7 +444,11 @@ public class PageBufferPool
         p.dirty = true;
         p.Age();
         pagePriorityQueue.IncreaseKey(p);
-        return new RecordId(p.index, p.AllocateSlot());
+        RecordId rid = new RecordId(p.index, p.AllocateSlot());
+
+        AddCachedRecord(rid, o);
+
+        return rid;
     }
 
     public void DeleteRecord(RecordId id)
@@ -454,6 +464,30 @@ public class PageBufferPool
     public RecordStreamReader GetRecordStreamReader(RecordId rid)
     {
         return GetPage(rid.pageId).GetRecordStreamReader(rid.slotId);
+    }
+
+    public object GetCachedRecord(RecordId rid)
+    {
+        if (!ridCache.ContainsKey(rid.pageId))
+            return null;
+
+        if (!ridCache[rid.pageId].ContainsKey(rid.slotId))
+            return null;
+
+        return ridCache[rid.pageId][rid.slotId];
+    }
+
+    public void AddCachedRecord(RecordId rid, object o)
+    {
+        if (!ridCache.ContainsKey(rid.pageId))
+            ridCache.Add(rid.pageId, new Dictionary<int, object>());
+
+        ridCache[rid.pageId][rid.slotId] = o;
+    }
+
+    public void ClearCachedRecord(int pageId)
+    {
+        ridCache.Remove(pageId);
     }
 
     private Page GetPage(int pageId)
@@ -506,6 +540,8 @@ public class PageBufferPool
 
             if (evictedPage.dirty)
                 FlushPage(evictedPage);
+
+            ClearCachedRecord(evictedPage.index);
         }
 
         pagePriorityQueue.Insert(p);

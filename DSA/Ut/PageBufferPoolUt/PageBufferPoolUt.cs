@@ -26,19 +26,19 @@ public class PageBufferPoolUt
         pm.AddPageType(new PageType((int)PageTypeEnum.type1, 20));
         pm.AddPageType(new PageType((int)PageTypeEnum.type2, 30));
 
-        RecordId rid1 = pm.AllocateRecord((int)PageTypeEnum.type1);
+        RecordId rid1 = pm.AllocateRecord((int)PageTypeEnum.type1, null);
         w = pm.GetRecordStreamWriter(rid1);
         w.WriteInt(7);
         w.WriteInt(8);
         w.WriteInt(9);
 
-        RecordId rid2 = pm.AllocateRecord((int)PageTypeEnum.type1);
+        RecordId rid2 = pm.AllocateRecord((int)PageTypeEnum.type1, null);
         w = pm.GetRecordStreamWriter(rid2);
         w.WriteInt(3);
         w.WriteInt(4);
         w.WriteInt(5);
 
-        RecordId rid3 = pm.AllocateRecord((int)PageTypeEnum.type2);
+        RecordId rid3 = pm.AllocateRecord((int)PageTypeEnum.type2, null);
         w = pm.GetRecordStreamWriter(rid3);
         w.WriteInt(4);
         w.WriteInt(5);
@@ -75,14 +75,14 @@ public class PageBufferPoolUt
         PageBufferPool pm = PageBufferPool.Create(filePath, pageSize, pageCacheCount);
         pm.AddPageType(new PageType((int)PageTypeEnum.type1, 20));
 
-        RecordId rid1 = pm.AllocateRecord((int)PageTypeEnum.type1);
+        RecordId rid1 = pm.AllocateRecord((int)PageTypeEnum.type1, null);
         w = pm.GetRecordStreamWriter(rid1);
         w.WriteInt(7);
         w.WriteInt(8);
         w.WriteInt(9);
 
         pm.DeleteRecord(rid1);
-        RecordId rid2 = pm.AllocateRecord((int)PageTypeEnum.type1);
+        RecordId rid2 = pm.AllocateRecord((int)PageTypeEnum.type1, null);
         w = pm.GetRecordStreamWriter(rid2);
         w.WriteInt(2);
         w.WriteInt(3);
@@ -113,8 +113,8 @@ public class PageBufferPoolUt
         List<RecordId> rids = new List<RecordId>();
         for (int i = 0; i < 100; i++)
         {
-            rids.Add(pageBufferPool.AllocateRecord((int)PageTypeEnum.type1));
-            rids.Add(pageBufferPool.AllocateRecord((int)PageTypeEnum.type2));
+            rids.Add(pageBufferPool.AllocateRecord((int)PageTypeEnum.type1, null));
+            rids.Add(pageBufferPool.AllocateRecord((int)PageTypeEnum.type2, null));
         }
 
         for (int i = 0; i < rids.Count; i++)
