@@ -13,7 +13,7 @@ public class CustomClass4 : IBPlusTreePagedData
 
     public CustomClass4(PageBufferPool pageBufferPool, int value)
     {
-        rid = pageBufferPool.AllocateRecord(4, this);
+        rid = pageBufferPool.AllocateRecord((int)BPlusTreePaged_PageTypeEnum.Data, this);
         this.pageBufferPool = pageBufferPool;
         this.value = value;
     }
@@ -34,7 +34,7 @@ public class CustomClass4 : IBPlusTreePagedData
         return ret;
     }
 
-    public IComparable GetKey()
+    public IComparable GetComparableKey()
     {
         return value;
     }
@@ -184,7 +184,7 @@ public class BPlusTreePagedUt
         {
             List<BPlusTreePagedKey> found = tree.Find(i);
             Check(found.Count == 6);
-            Check(found[0].GetKey().CompareTo(i) == 0);
+            Check(found[0].GetComparableKey().CompareTo(i) == 0);
         }
 
         pageBufferPool.Close();
@@ -360,10 +360,10 @@ public class BPlusTreePagedUt
             return;
 
         if (n.rid != tree.GetRootRid())
-            Check(tree.GetT() - 1 <= n.keys.Count && n.keys.Count <= 2 * tree.GetT() - 1);
+            Check(tree.GetT() - 1 <= n.GetKeyCount() && n.GetKeyCount() <= 2 * tree.GetT() - 1);
 
         if (n.GetChildrenCount() != 0)
-            Check(n.keys.Count + 1 == n.GetChildrenCount());
+            Check(n.GetKeyCount() + 1 == n.GetChildrenCount());
 
         for (int i = 0; i < n.GetChildrenCount(); i++)
             CheckBPlusTreePagedValidity1_KeyAndChildCountInternal(tree, n.GetChild(i));
@@ -403,10 +403,10 @@ public class BPlusTreePagedUt
             if (node.IsInternal())
                 prevValue = CheckBPlusTreePagedValidity3_CheckOrderInternal(tree, tree.GetNode(node.GetChild(i)), prevValue);
 
-            if (i < node.keys.Count)
+            if (i < node.GetKeyCount())
             {
-                Check(node.keys[i].GetKey().CompareTo(prevValue.GetKey()) >= 0);
-                prevValue = node.keys[i];
+                Check(tree.GetKey(node.GetKeyAt(i)).GetComparableKey().CompareTo(prevValue.GetComparableKey()) >= 0);
+                prevValue = tree.GetKey(node.GetKeyAt(i));
             }
         }
 
@@ -423,7 +423,7 @@ public class BPlusTreePagedUt
         while (firstLeaf.GetChildrenCount() != 0)
             firstLeaf = tree.GetNode(firstLeaf.GetChild(0));
 
-        BPlusTreePagedKey currentData = firstLeaf.keys[0];
+        BPlusTreePagedKey currentData = tree.GetKey(firstLeaf.GetKeyAt(0));
         BPlusTreePagedKey prevData = null;
 
         for (int i = 0; i < dataCount; i++)
@@ -436,7 +436,7 @@ public class BPlusTreePagedUt
             if (i != 0)
             {
                 Check(currentData.GetLeft() == prevData);
-                Check(currentData.GetLeft().GetKey().CompareTo(currentData.GetKey()) <= 0);
+                Check(currentData.GetLeft().GetComparableKey().CompareTo(currentData.GetComparableKey()) <= 0);
             }
 
             prevData = currentData;
@@ -478,10 +478,12 @@ public class BPlusTreePagedUt
         pageBufferPool.AddPageType(BPlusTreePaged_PageTypeFactory.GetKeyType());
         pageBufferPool.AddPageType(BPlusTreePaged_PageTypeFactory.GetDataType(10));
 
-        BPlusTreePaged tree = new BPlusTreePaged(2, pageBufferPool, new CustomClass4(pageBufferPool, 0));
+        BPlusTreePaged tree = new BPlusTreePaged(2, pageBufferPool, CustomClass4.GetDummyData());
 
         CustomClass4 d = new CustomClass4(pageBufferPool, 77);
         tree.Insert(new BPlusTreePagedKey(pageBufferPool, d.GetRid(), CustomClass4.GetDummyData()));
+
+        BPlusTreePagedNode r = tree.GetNode(tree.GetRootRid());
 
         Console.WriteLine(tree);
         pageBufferPool.Close();
@@ -490,6 +492,8 @@ public class BPlusTreePagedUt
         tree = BPlusTreePaged.Load(pageBufferPool, CustomClass4.GetDummyData());
         Check(tree.GetT() == 2);
         Check(tree.GetRootRid() != null);
+        BPlusTreePagedNode n = tree.GetNode(tree.GetRootRid());
+
         pageBufferPool.Close();
     }
 

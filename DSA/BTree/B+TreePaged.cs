@@ -102,7 +102,7 @@ public class BPlusTreePaged
 
         if (GetRootRid() == null)
         {
-            BPlusTreePagedNode node = new BPlusTreePagedNode(pageBufferPool, new List<BPlusTreePagedKey>());
+            BPlusTreePagedNode node = new BPlusTreePagedNode(pageBufferPool, new List<RecordId>(), dummyData);
             SetRootRid(node.rid);
         }
 
@@ -122,11 +122,24 @@ public class BPlusTreePaged
             return BPlusTreePagedNode.Load(pageBufferPool, rid, dummyData);
     }
 
+    public BPlusTreePagedKey GetKey(RecordId rid)
+    {
+        if (rid == null)
+            return null;
+
+        object cached = pageBufferPool.GetCachedRecord(rid);
+
+        if (cached != null)
+            return (BPlusTreePagedKey)cached;
+        else
+            return BPlusTreePagedKey.Load(pageBufferPool, rid, dummyData);
+    }
+
     private void InsertUpward(BPlusTreePagedNode node, BPlusTreePagedKey key, BPlusTreePagedNode left, BPlusTreePagedNode right)
     {
         int i = GetKeyInsertPosition(node, key);
 
-        node.keys.Insert(i, key);
+        node.InsertKey(i, key.rid);
 
         if (node.GetChildrenCount() != 0)
             node.RemoveChildAt(i);
@@ -134,7 +147,7 @@ public class BPlusTreePaged
         node.InsertChild(i, left.rid);
         node.InsertChild(i + 1, right.rid);
 
-        if (node.keys.Count == 2 * GetT())
+        if (node.GetKeyCount() == 2 * GetT())
         {
             Split(node);
         }
@@ -143,9 +156,9 @@ public class BPlusTreePaged
     private int GetKeyInsertPosition(BPlusTreePagedNode node, BPlusTreePagedKey key)
     {
         int i = 0;
-        for (; i < node.keys.Count; i++)
+        for (; i < node.GetKeyCount(); i++)
         {
-            if (key.GetKey().CompareTo(node.keys[i].GetKey()) < 0)
+            if (key.GetComparableKey().CompareTo(GetKey(node.GetKeyAt(i)).GetComparableKey()) < 0)
                 break;
         }
         return i;
@@ -157,11 +170,11 @@ public class BPlusTreePaged
 
         if (node.IsLeaf())
         {
-            if (node.keys.Count > 0)
+            if (node.GetKeyCount() > 0)
             {
-                if (i == node.keys.Count)
+                if (i == node.GetKeyCount())
                 {
-                    BPlusTreePagedKey leftData = node.keys[i - 1];
+                    BPlusTreePagedKey leftData = GetKey(node.GetKeyAt(i - 1));
                     if (leftData.GetRight() != null)
                         leftData.GetRight().SetLeft(key.rid);
 
@@ -171,7 +184,7 @@ public class BPlusTreePaged
                 }
                 else
                 {
-                    BPlusTreePagedKey originalData = node.keys[i];
+                    BPlusTreePagedKey originalData = GetKey(node.GetKeyAt(i));
 
                     if (originalData.GetLeft() != null)
                         originalData.GetLeft().SetRight(key.rid);
@@ -183,9 +196,9 @@ public class BPlusTreePaged
             }
 
 
-            node.keys.Insert(i, key);
+            node.InsertKey(i, key.rid);
 
-            if (node.keys.Count == 2 * GetT())
+            if (node.GetKeyCount() == 2 * GetT())
             {
                 Split(node);
             }
@@ -198,7 +211,7 @@ public class BPlusTreePaged
 
     private void Split(BPlusTreePagedNode node)
     {
-        BPlusTreePagedKey key = node.keys[GetT()];
+        BPlusTreePagedKey key = GetKey(node.GetKeyAt(GetT()));
 
         BPlusTreePagedNode left = null;
         BPlusTreePagedNode right = null;
@@ -206,14 +219,14 @@ public class BPlusTreePaged
         // leaf
         if (node.GetChildrenCount() == 0)
         {
-            left = new BPlusTreePagedNode(pageBufferPool, node.keys.GetRange(0, GetT()));
-            right = new BPlusTreePagedNode(pageBufferPool, node.keys.GetRange(GetT(), GetT()));
+            left = new BPlusTreePagedNode(pageBufferPool, node.GetKeyRange(0, GetT()), dummyData);
+            right = new BPlusTreePagedNode(pageBufferPool, node.GetKeyRange(GetT(), GetT()), dummyData);
             key = key.CloneKeyOnly();
         }
         else // internal node works in the same way as BTree
         {
-            left = new BPlusTreePagedNode(pageBufferPool, node.keys.GetRange(0, GetT()));
-            right = new BPlusTreePagedNode(pageBufferPool, node.keys.GetRange(GetT() + 1, GetT() - 1));
+            left = new BPlusTreePagedNode(pageBufferPool, node.GetKeyRange(0, GetT()), dummyData);
+            right = new BPlusTreePagedNode(pageBufferPool, node.GetKeyRange(GetT() + 1, GetT() - 1), dummyData);
 
             left.AddChildrenRange(node.GetChildrenRange(0, GetT() + 1));
             right.AddChildrenRange(node.GetChildrenRange(GetT() + 1, GetT()));
@@ -226,7 +239,7 @@ public class BPlusTreePaged
 
         if (GetNode(node.GetParentRid()) == null)
         {
-            BPlusTreePagedNode n = new BPlusTreePagedNode(pageBufferPool, new List<BPlusTreePagedKey>());
+            BPlusTreePagedNode n = new BPlusTreePagedNode(pageBufferPool, new List<RecordId>(), dummyData);
             SetRootRid(n.rid);
             node.SetParentRid(GetRootRid());
         }
@@ -246,7 +259,7 @@ public class BPlusTreePaged
 
     private int KeyCountInternal(BPlusTreePagedNode node)
     {
-        int keyCount = node.keys.Count;
+        int keyCount = node.GetKeyCount();
         for (int i = 0; i < node.GetChildrenCount(); i++)
             keyCount += KeyCountInternal(GetNode(node.GetChild(i)));
 
@@ -266,27 +279,27 @@ public class BPlusTreePaged
         while (node != null && !node.IsLeaf())
         {
             int childIndex = 0;
-            while (childIndex < node.keys.Count && key.CompareTo(node.keys[childIndex].GetKey()) >= 0)
+            while (childIndex < node.GetKeyCount() && key.CompareTo(GetKey(node.GetKeyAt(childIndex)).GetComparableKey()) >= 0)
                 childIndex++;
 
             node = GetNode(node.GetChild(childIndex));
         }
 
         int keyIndex = 0;
-        while (keyIndex < node.keys.Count && key.CompareTo(node.keys[keyIndex].GetKey()) < 0)
+        while (keyIndex < node.GetKeyCount() && key.CompareTo(GetKey(node.GetKeyAt(keyIndex)).GetComparableKey()) < 0)
             keyIndex++;
 
-        if (keyIndex >= node.keys.Count || key.CompareTo(node.keys[keyIndex].GetKey()) != 0)
+        if (keyIndex >= node.GetKeyCount() || key.CompareTo(GetKey(node.GetKeyAt(keyIndex)).GetComparableKey()) != 0)
             return new List<BPlusTreePagedKey>();
 
         List<BPlusTreePagedKey> found = new List<BPlusTreePagedKey>();
 
-        BPlusTreePagedKey firstFound = node.keys[keyIndex];
+        BPlusTreePagedKey firstFound = GetKey(node.GetKeyAt(keyIndex));
 
         BPlusTreePagedKey leftData = firstFound.GetLeft();
         while (leftData != null)
         {
-            if (key.CompareTo(leftData.GetKey()) != 0)
+            if (key.CompareTo(leftData.GetComparableKey()) != 0)
                 break;
 
             found.Insert(0, leftData);
@@ -298,7 +311,7 @@ public class BPlusTreePaged
         BPlusTreePagedKey rightData = firstFound.GetRight();
         while (rightData != null)
         {
-            if (key.CompareTo(rightData.GetKey()) != 0)
+            if (key.CompareTo(rightData.GetComparableKey()) != 0)
                 break;
 
             found.Insert(0, rightData);
@@ -320,19 +333,19 @@ public class BPlusTreePaged
     private bool DeleteFromLeaf(BPlusTreePagedNode node, IComparable key)
     {
         int index = 0;
-        for (; index < node.keys.Count; index++)
+        for (; index < node.GetKeyCount(); index++)
         {
-            if (key.CompareTo(node.keys[index].GetKey()) < 0)
+            if (key.CompareTo(GetKey(node.GetKeyAt(index)).GetComparableKey()) < 0)
                 return false;
 
-            if (key.CompareTo(node.keys[index].GetKey()) == 0)
+            if (key.CompareTo(GetKey(node.GetKeyAt(index)).GetComparableKey()) == 0)
                 break;
         }
-        if (index == node.keys.Count)
+        if (index == node.GetKeyCount())
             return false;
 
-        BPlusTreePagedKey left = node.keys[index].GetLeft();
-        BPlusTreePagedKey right = node.keys[index].GetRight();
+        BPlusTreePagedKey left = GetKey(node.GetKeyAt(index)).GetLeft();
+        BPlusTreePagedKey right = GetKey(node.GetKeyAt(index)).GetRight();
 
         if (left == null && right == null)
         {
@@ -352,9 +365,9 @@ public class BPlusTreePaged
             right.SetLeft(null);
         }
 
-        node.keys.RemoveAt(index);
+        node.RemoveKeyAt(index);
 
-        if (node == GetNode(GetRootRid()) && node.keys.Count == 0)
+        if (node == GetNode(GetRootRid()) && node.GetKeyCount() == 0)
             SetRootRid(null);
 
         return true;
@@ -370,15 +383,15 @@ public class BPlusTreePaged
             BPlusTreePagedNode max = GetNode(left.GetChild(left.GetChildrenCount() - 1));
             while (!max.IsLeaf())
                 max = GetNode(max.GetChild(max.GetChildrenCount() - 1));
-            left.keys.Add(max.keys[max.keys.Count - 1].CloneKeyOnly());
+            left.AddKey(GetKey(max.GetKeyAt(max.GetKeyCount() - 1)).CloneKeyOnly().rid);
         }
-        left.keys.AddRange(right.keys);
+        left.AddKeyRange(right.GetKeyRange(0, right.GetKeyCount()));
         left.AddChildrenRange(right.GetChildrenRange(0, right.GetChildrenCount()));
-        node.keys.RemoveAt(rightChildIndex - 1);
+        node.RemoveKeyAt(rightChildIndex - 1);
         node.RemoveChildAt(rightChildIndex);
 
         // root case
-        if (node == GetNode(GetRootRid()) && node.keys.Count == 0)
+        if (node == GetNode(GetRootRid()) && node.GetKeyCount() == 0)
             SetRootRid(left.rid);
     }
 
@@ -393,14 +406,14 @@ public class BPlusTreePaged
         int firstChildIndex = 0;
         int secondChildIndex = -1;
 
-        while (firstChildIndex < node.keys.Count && key.CompareTo(node.keys[firstChildIndex].GetKey()) >= 0)
+        while (firstChildIndex < node.GetKeyCount() && key.CompareTo(GetKey(node.GetKeyAt(firstChildIndex)).GetComparableKey()) >= 0)
         {
             // Consider both side if equal  
             //        [2]
             //   [1]      [2]
             // [0]  [2] [2]  [3]
 
-            if (key.CompareTo(node.keys[firstChildIndex].GetKey()) == 0)
+            if (key.CompareTo(GetKey(node.GetKeyAt(firstChildIndex)).GetComparableKey()) == 0)
             {
                 secondChildIndex = firstChildIndex + 1;
                 break;
@@ -425,15 +438,15 @@ public class BPlusTreePaged
 
         BPlusTreePagedNode childNode = GetNode(node.GetChild(childIndex));
 
-        if (childNode.keys.Count >= GetT() - 1)
+        if (childNode.GetKeyCount() >= GetT() - 1)
             return true;
 
-        if (childIndex == node.keys.Count)
+        if (childIndex == node.GetKeyCount())
         {
             BPlusTreePagedNode leftSibling = GetNode(node.GetChild(childIndex - 1));
 
             // merge
-            if (leftSibling.keys.Count == GetT() - 1)
+            if (leftSibling.GetKeyCount() == GetT() - 1)
             {
                 Merge(node, childIndex - 1, childIndex);
             }
@@ -442,21 +455,21 @@ public class BPlusTreePaged
             {
                 if (leftSibling.IsLeaf())
                 {
-                    childNode.keys.Insert(0, leftSibling.keys[leftSibling.keys.Count - 1]);
-                    node.keys[childIndex - 1] = childNode.keys[0].CloneKeyOnly();
-                    leftSibling.keys.RemoveAt(leftSibling.keys.Count - 1);
+                    childNode.InsertKey(0, leftSibling.GetKeyAt(leftSibling.GetKeyCount() - 1));
+                    node.SetKeyAt(childIndex - 1, GetKey(childNode.GetKeyAt(0)).CloneKeyOnly().rid);
+                    leftSibling.RemoveKeyAt(leftSibling.GetKeyCount() - 1);
                 }
                 else
                 {
                     BPlusTreePagedNode max = GetNode(leftSibling.GetChild(leftSibling.GetChildrenCount() - 1));
                     while (!max.IsLeaf())
                         max = GetNode(max.GetChild(max.GetChildrenCount() - 1));
-                    childNode.keys.Insert(0, max.keys[max.keys.Count - 1].CloneKeyOnly());
+                    childNode.InsertKey(0, GetKey(max.GetKeyAt(max.GetKeyCount() - 1)).CloneKeyOnly().rid);
                     childNode.InsertChild(0, leftSibling.GetChild(leftSibling.GetChildrenCount() - 1));
-                    node.keys[childIndex - 1] = leftSibling.keys[leftSibling.keys.Count - 1];
+                    node.SetKeyAt(childIndex - 1, leftSibling.GetKeyAt(leftSibling.GetKeyCount() - 1));
 
                     leftSibling.RemoveChildAt(leftSibling.GetChildrenCount() - 1);
-                    leftSibling.keys.RemoveAt(leftSibling.keys.Count - 1);
+                    leftSibling.RemoveKeyAt(leftSibling.GetKeyCount() - 1);
                 }
             }
         }
@@ -465,7 +478,7 @@ public class BPlusTreePaged
             BPlusTreePagedNode rightSibling = GetNode(node.GetChild(childIndex + 1));
 
             // merge
-            if (rightSibling.keys.Count == GetT() - 1)
+            if (rightSibling.GetKeyCount() == GetT() - 1)
             {
                 Merge(node, childIndex, childIndex + 1);
             }
@@ -474,21 +487,21 @@ public class BPlusTreePaged
             {
                 if (rightSibling.IsLeaf())
                 {
-                    childNode.keys.Add(rightSibling.keys[0]);
-                    node.keys[childIndex] = rightSibling.keys[1].CloneKeyOnly();
-                    rightSibling.keys.RemoveAt(0);
+                    childNode.AddKey(rightSibling.GetKeyAt(0));
+                    node.SetKeyAt(childIndex, GetKey(rightSibling.GetKeyAt(1)).CloneKeyOnly().rid);
+                    rightSibling.RemoveKeyAt(0);
                 }
                 else
                 {
                     BPlusTreePagedNode min = GetNode(rightSibling.GetChild(0));
                     while (!min.IsLeaf())
                         min = GetNode(min.GetChild(0));
-                    childNode.keys.Add(min.keys[0].CloneKeyOnly());
+                    childNode.AddKey(GetKey(min.GetKeyAt(0)).CloneKeyOnly().rid);
                     childNode.AddChild(rightSibling.GetChild(0));
-                    node.keys[childIndex] = rightSibling.keys[0];
+                    node.SetKeyAt(childIndex, rightSibling.GetKeyAt(0));
 
                     rightSibling.RemoveChildAt(0);
-                    rightSibling.keys.RemoveAt(0);
+                    rightSibling.RemoveKeyAt(0);
                 }
             }
         }
@@ -547,22 +560,22 @@ public class BPlusTreePagedNode
     public RecordId rid = null;
     private RecordId _parentRid = null;
 
-    public List<BPlusTreePagedKey> keys = new List<BPlusTreePagedKey>();
-
+    public List<RecordId> _keys = new List<RecordId>();
     public List<RecordId> _children = new List<RecordId>();
-
     private PageBufferPool pageBufferPool = null;
+    private IBPlusTreePagedData dummyData = null;
 
     private BPlusTreePagedNode()
     {
 
     }
 
-    public BPlusTreePagedNode(PageBufferPool pageBufferPool, List<BPlusTreePagedKey> keys)
+    public BPlusTreePagedNode(PageBufferPool pageBufferPool, List<RecordId> keys, IBPlusTreePagedData dummyData)
     {
         rid = pageBufferPool.AllocateRecord((int)BPlusTreePaged_PageTypeEnum.Node, this);
         this.pageBufferPool = pageBufferPool;
-        this.keys = keys;
+        this.dummyData = dummyData;
+        _keys.AddRange(keys);
     }
 
     public void Save()
@@ -570,9 +583,9 @@ public class BPlusTreePagedNode
         RecordStreamWriter writer = pageBufferPool.GetRecordStreamWriter(rid);
         writer.WriteRecord(GetParentRid());
 
-        writer.WriteInt(keys.Count);
-        for (int i = 0; i < keys.Count; i++)
-            keys[i].Save();
+        writer.WriteInt(_keys.Count);
+        for (int i = 0; i < _keys.Count; i++)
+            GetKey(_keys[i]).Save();
 
         writer.WriteInt(_children.Count);
         for (int i = 0; i < _children.Count; i++)
@@ -590,18 +603,11 @@ public class BPlusTreePagedNode
 
         int keyCount = reader.ReadInt();
         for (int i = 0; i < keyCount; i++)
-        {
-            RecordId keyRid = reader.ReadRecord();
-            BPlusTreePagedKey key = BPlusTreePagedKey.Load(pageBufferPool, keyRid, dummyData);
-            n.keys.Add(key);
-        }
+            n._keys.Add(reader.ReadRecord());
 
         int childCount = reader.ReadInt();
         for (int i = 0; i < childCount; i++)
-        {
-            RecordId childRid = reader.ReadRecord();
-            n.AddChild(childRid);
-        }
+            n.AddChild(reader.ReadRecord());
 
         return n;
     }
@@ -656,6 +662,50 @@ public class BPlusTreePagedNode
         Save();
     }
 
+    public void SetKeyAt(int i, RecordId rid)
+    {
+        _keys[i] = rid;
+    }
+
+    public RecordId GetKeyAt(int i)
+    {
+        return _keys[i];
+    }
+
+    public int GetKeyCount()
+    {
+        return _keys.Count;
+    }
+
+    public List<RecordId> GetKeyRange(int start, int count)
+    {
+        return _keys.GetRange(start, count);
+    }
+
+    public void InsertKey(int i, RecordId key)
+    {
+        _keys.Insert(i, key);
+        Save();
+    }
+
+    public void RemoveKeyAt(int i)
+    {
+        _keys.RemoveAt(i);
+        Save();
+    }
+
+    public void AddKey(RecordId key)
+    {
+        _keys.Add(key);
+        Save();
+    }
+
+    public void AddKeyRange(List<RecordId> keys)
+    {
+        _keys.AddRange(keys);
+        Save();
+    }
+
     public bool IsLeaf()
     {
         return GetChildrenCount() == 0;
@@ -666,11 +716,25 @@ public class BPlusTreePagedNode
         return !IsLeaf();
     }
 
+    public BPlusTreePagedKey GetKey(RecordId rid)
+    {
+        if (rid == null)
+            return null;
+
+        object cached = pageBufferPool.GetCachedRecord(rid);
+
+        if (cached != null)
+            return (BPlusTreePagedKey)cached;
+        else
+            return BPlusTreePagedKey.Load(pageBufferPool, rid, dummyData);
+    }
+
     public override string ToString()
     {
         string s = "[";
-        foreach (BPlusTreePagedKey key in keys)
+        foreach (RecordId key2 in _keys)
         {
+            BPlusTreePagedKey key = GetKey(key2);
             if (s != "[")
             {
                 s += ", ";
@@ -736,9 +800,9 @@ public class BPlusTreePagedKey
         return key;
     }
 
-    public IComparable GetKey()
+    public IComparable GetComparableKey()
     {
-        return GetData().GetKey();
+        return GetData().GetComparableKey();
     }
 
     public IBPlusTreePagedData GetData()
@@ -779,7 +843,7 @@ public class BPlusTreePagedKey
 
 public interface IBPlusTreePagedData
 {
-    public IComparable GetKey();
+    public IComparable GetComparableKey();
     public IBPlusTreePagedData CloneKeyOnly();
     public void Save(PageBufferPool pageBufferPool);
     public IBPlusTreePagedData Load(PageBufferPool pageBufferPool, RecordId rid);
