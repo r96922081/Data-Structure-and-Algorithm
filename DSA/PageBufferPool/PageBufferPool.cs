@@ -315,7 +315,7 @@ public class PageBufferPool
     private int pageSize = -1;
     private int pageCount = 0;
     private int pageCacheCount = 0;
-    private Dictionary<int, Page> cachedPages = new Dictionary<int, Page>();
+    public Dictionary<int, Page> cachedPages = new Dictionary<int, Page>();
     private MinPriorityQueue<Page> pagePriorityQueue = new MinPriorityQueue<Page>();
     private Dictionary<int, PageType> pageTypes = new Dictionary<int, PageType>();
 
@@ -429,8 +429,9 @@ public class PageBufferPool
     {
         Page p = null;
 
-        foreach (Page p2 in cachedPages.Values)
+        for (int i = 0; i < pageCount; i++)
         {
+            Page p2 = GetPage(i);
             if (p2.type == type && p2.freeSlotCount > 0)
             {
                 p = p2;

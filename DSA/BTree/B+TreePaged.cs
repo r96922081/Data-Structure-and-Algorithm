@@ -575,7 +575,7 @@ public class BPlusTreePagedNode
         rid = pageBufferPool.AllocateRecord((int)BPlusTreePaged_PageTypeEnum.Node, this);
         this.pageBufferPool = pageBufferPool;
         this.dummyData = dummyData;
-        _keys.AddRange(keys);
+        AddKeyRange(keys);
     }
 
     public void Save()
@@ -585,7 +585,7 @@ public class BPlusTreePagedNode
 
         writer.WriteInt(_keys.Count);
         for (int i = 0; i < _keys.Count; i++)
-            GetKey(_keys[i]).Save();
+            writer.WriteRecord(_keys[i]);
 
         writer.WriteInt(_children.Count);
         for (int i = 0; i < _children.Count; i++)
@@ -597,9 +597,12 @@ public class BPlusTreePagedNode
         BPlusTreePagedNode n = new BPlusTreePagedNode();
         n.pageBufferPool = pageBufferPool;
         n.rid = rid;
+        n.dummyData = dummyData;
 
         RecordStreamReader reader = pageBufferPool.GetRecordStreamReader(rid);
-        n.SetParentRid(reader.ReadRecord());
+        // do not use:   n.SetParentRid(reader.ReadRecord())
+        // Because it will call Save(), then write keyCount = 0 to page buffer, and next time you read will get 0
+        n._parentRid = reader.ReadRecord();
 
         int keyCount = reader.ReadInt();
         for (int i = 0; i < keyCount; i++)
@@ -665,6 +668,7 @@ public class BPlusTreePagedNode
     public void SetKeyAt(int i, RecordId rid)
     {
         _keys[i] = rid;
+        Save();
     }
 
     public RecordId GetKeyAt(int i)
@@ -764,7 +768,7 @@ public class BPlusTreePagedKey
     {
         rid = pageBufferPool.AllocateRecord((int)BPlusTreePaged_PageTypeEnum.Key, this);
         this.pageBufferPool = pageBufferPool;
-        _dataRid = dataRid;
+        SetData(dataRid);
         this.dummyData = dummyData;
     }
 
@@ -787,6 +791,7 @@ public class BPlusTreePagedKey
         key._leftRid = reader.ReadRecord();
         key._rightRid = reader.ReadRecord();
         key._dataRid = reader.ReadRecord();
+        key.rid = rid;
 
         return key;
     }
@@ -818,6 +823,12 @@ public class BPlusTreePagedKey
             return dummyData.Load(pageBufferPool, _dataRid);
     }
 
+    public void SetData(RecordId dataRid)
+    {
+        _dataRid = dataRid;
+        Save();
+    }
+
     public void SetLeft(RecordId leftRid)
     {
         _leftRid = leftRid;
@@ -838,6 +849,12 @@ public class BPlusTreePagedKey
     public BPlusTreePagedKey GetRight()
     {
         return Load(pageBufferPool, _rightRid, dummyData);
+    }
+
+    public override string ToString()
+    {
+        IBPlusTreePagedData data = dummyData.Load(pageBufferPool, _dataRid);
+        return data.ToString();
     }
 }
 

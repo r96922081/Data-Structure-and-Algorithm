@@ -6,7 +6,7 @@
         BTreeUt.Ut();
         BPlusTreeUt.Ut();*/
 
-        PageBufferPoolUt.Ut();
+        //PageBufferPoolUt.Ut();
         BPlusTreePagedUt.Ut();
     }
 }
