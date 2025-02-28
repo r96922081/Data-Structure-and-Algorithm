@@ -378,7 +378,7 @@ public class BPlusTreePagedUt
             values.RemoveAt(valueIndex);
         }
 
-        Console.WriteLine(tree);
+        //Console.WriteLine(tree);
 
         CheckBPlusTreePagedValidity(tree, 200);
         pageBufferPool.Close();

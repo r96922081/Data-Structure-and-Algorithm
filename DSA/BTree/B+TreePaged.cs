@@ -391,7 +391,7 @@ public class BPlusTreePaged
         node.RemoveChildAt(rightChildIndex);
 
         // root case
-        if (node == GetNode(GetRootRid()) && node.GetKeyCount() == 0)
+        if (node.rid == GetRootRid() && node.GetKeyCount() == 0)
             SetRootRid(left.rid);
     }
 
