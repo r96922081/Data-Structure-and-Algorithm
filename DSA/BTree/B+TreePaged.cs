@@ -176,9 +176,9 @@ public class BPlusTreePaged
                 {
                     BPlusTreePagedKey leftData = GetKey(node.GetKeyAt(i - 1));
                     if (leftData.GetRight() != null)
-                        leftData.GetRight().SetLeft(key.rid);
+                        GetKey(leftData.GetRight()).SetLeft(key.rid);
 
-                    key.SetRight(leftData.GetRight().rid);
+                    key.SetRight(leftData.GetRight());
                     key.SetLeft(leftData.rid);
                     leftData.SetRight(key.rid);
                 }
@@ -187,9 +187,9 @@ public class BPlusTreePaged
                     BPlusTreePagedKey originalData = GetKey(node.GetKeyAt(i));
 
                     if (originalData.GetLeft() != null)
-                        originalData.GetLeft().SetRight(key.rid);
+                        GetKey(originalData.GetLeft()).SetRight(key.rid);
 
-                    key.SetLeft(originalData.GetLeft().rid);
+                    key.SetLeft(originalData.GetLeft());
                     key.SetRight(originalData.rid);
                     originalData.SetLeft(key.rid);
                 }
@@ -296,26 +296,26 @@ public class BPlusTreePaged
 
         BPlusTreePagedKey firstFound = GetKey(node.GetKeyAt(keyIndex));
 
-        BPlusTreePagedKey leftData = firstFound.GetLeft();
+        BPlusTreePagedKey leftData = GetKey(firstFound.GetLeft());
         while (leftData != null)
         {
             if (key.CompareTo(leftData.GetComparableKey()) != 0)
                 break;
 
             found.Insert(0, leftData);
-            leftData = leftData.GetLeft();
+            leftData = GetKey(leftData.GetLeft());
         }
 
         found.Add(firstFound);
 
-        BPlusTreePagedKey rightData = firstFound.GetRight();
+        BPlusTreePagedKey rightData = GetKey(firstFound.GetRight());
         while (rightData != null)
         {
             if (key.CompareTo(rightData.GetComparableKey()) != 0)
                 break;
 
             found.Insert(0, rightData);
-            rightData = rightData.GetRight();
+            rightData = GetKey(rightData.GetRight());
         }
 
         return found;
@@ -344,8 +344,8 @@ public class BPlusTreePaged
         if (index == node.GetKeyCount())
             return false;
 
-        BPlusTreePagedKey left = GetKey(node.GetKeyAt(index)).GetLeft();
-        BPlusTreePagedKey right = GetKey(node.GetKeyAt(index)).GetRight();
+        RecordId left = GetKey(node.GetKeyAt(index)).GetLeft();
+        RecordId right = GetKey(node.GetKeyAt(index)).GetRight();
 
         if (left == null && right == null)
         {
@@ -353,16 +353,16 @@ public class BPlusTreePaged
         }
         else if (left != null && right != null)
         {
-            left.SetRight(right.rid);
-            right.SetLeft(left.rid);
+            GetKey(left).SetRight(right);
+            GetKey(right).SetLeft(left);
         }
         else if (left != null && right == null)
         {
-            left.SetRight(null);
+            GetKey(left).SetRight(null);
         }
         else if (left == null && right != null)
         {
-            right.SetLeft(null);
+            GetKey(right).SetLeft(null);
         }
 
         node.RemoveKeyAt(index);
@@ -823,6 +823,14 @@ public class BPlusTreePagedKey
             return dummyData.Load(pageBufferPool, _dataRid);
     }
 
+    public object GetDataValue()
+    {
+        if (_dataRid == null)
+            return null;
+
+        return GetData().GetData();
+    }
+
     public void SetData(RecordId dataRid)
     {
         _dataRid = dataRid;
@@ -841,14 +849,14 @@ public class BPlusTreePagedKey
         Save();
     }
 
-    public BPlusTreePagedKey GetLeft()
+    public RecordId GetLeft()
     {
-        return Load(pageBufferPool, _leftRid, dummyData);
+        return _leftRid;
     }
 
-    public BPlusTreePagedKey GetRight()
+    public RecordId GetRight()
     {
-        return Load(pageBufferPool, _rightRid, dummyData);
+        return _rightRid;
     }
 
     public override string ToString()
