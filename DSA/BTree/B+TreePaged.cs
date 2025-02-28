@@ -367,7 +367,7 @@ public class BPlusTreePaged
 
         node.RemoveKeyAt(index);
 
-        if (node == GetNode(GetRootRid()) && node.GetKeyCount() == 0)
+        if (node.rid == GetRootRid() && node.GetKeyCount() == 0)
             SetRootRid(null);
 
         return true;

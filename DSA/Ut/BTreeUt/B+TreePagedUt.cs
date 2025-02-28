@@ -378,7 +378,7 @@ public class BPlusTreePagedUt
             values.RemoveAt(valueIndex);
         }
 
-        //Console.WriteLine(tree);
+        Console.WriteLine(tree);
 
         CheckBPlusTreePagedValidity(tree, 200);
         pageBufferPool.Close();
@@ -467,6 +467,9 @@ public class BPlusTreePagedUt
         if (tree.GetRootRid() == null)
             return;
 
+        if (dataCount == 0)
+            return;
+
         BPlusTreePagedNode firstLeaf = tree.GetNode(tree.GetRootRid());
         while (firstLeaf.GetChildrenCount() != 0)
             firstLeaf = tree.GetNode(firstLeaf.GetChild(0));
@@ -494,6 +497,9 @@ public class BPlusTreePagedUt
 
     private static BPlusTreePagedKey LoadKey(BPlusTreePaged tree, RecordId rid)
     {
+        if (rid == null)
+            return null;
+
         return BPlusTreePagedKey.Load(tree.pageBufferPool, rid, tree.dummyData);
     }
 
