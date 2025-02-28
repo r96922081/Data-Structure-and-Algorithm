@@ -9,6 +9,11 @@
         this.slotId = slotId;
     }
 
+    public override string ToString()
+    {
+        return "pageId = " + pageId + ", " + slotId;
+    }
+
     public override bool Equals(object obj)
     {
         if (obj == null)
