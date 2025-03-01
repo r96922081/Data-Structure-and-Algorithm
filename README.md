@@ -27,7 +27,7 @@ MinPriorityQueue that supports Increase/Decrease key that was not supported in .
 
 ## [MD5 Hash](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/md5.c)
 
-MD5 that implements according to pseudo code on ![wiki](https://en.wikipedia.org/wiki/MD5)
+MD5 that implements pseudo code on [wiki](https://en.wikipedia.org/wiki/MD5)
 
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_1.png?raw=true)
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_2.png?raw=true)
