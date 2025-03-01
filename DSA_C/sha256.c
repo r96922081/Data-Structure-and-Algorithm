@@ -165,7 +165,7 @@ static void sha256(uint8_t message[], uint32_t original_message_byte_count)
     printf("SHA256 of \"%s\":\n", message);
     for (int i = 0; i < 32; i++)
         printf("%02x", hash[i]);
-    printf("\n");
+    printf("\n\n");
 }
 
 void sha256_main()
