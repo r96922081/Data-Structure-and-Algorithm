@@ -35,3 +35,13 @@ Pseudo code:
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_1.png?raw=true)
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_2.png?raw=true)
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_3.png?raw=true)
+
+## [SHA256 Hash](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/sha256.c)
+
+SHA256 that implements pseudo code on [wiki](https://en.wikipedia.org/wiki/SHA-2)
+![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/sha256_3.png?raw=true)
+
+
+Pseudo code:
+![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/sha256_1.png?raw=true)
+![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/sha256_2.png?raw=true)
