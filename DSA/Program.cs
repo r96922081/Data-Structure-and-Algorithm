@@ -2,11 +2,10 @@
 {
     public static void Main(string[] args)
     {
-        /*MinPriorityQueueUT.Ut();
+        MinPriorityQueueUT.Ut();
         BTreeUt.Ut();
-        BPlusTreeUt.Ut();*/
-
-        //PageBufferPoolUt.Ut();
+        BPlusTreeUt.Ut();
+        PageBufferPoolUt.Ut();
         BPlusTreePagedUt.Ut();
     }
 }
