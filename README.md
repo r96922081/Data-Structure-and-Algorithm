@@ -9,4 +9,9 @@ such as databases and file systems
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/btree.png?raw=true)
 
 ## [B+Tree](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/B%2BTree.cs)
+BTree with 2 diferences
 
+ -  Internal nodes of B+Tree store only key value and child pointer, the actual data is saved in leaf node
+ - Leaf nodes are linked together (suitable for full scan and range scan)
+
+![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/b+tree.png?raw=true)
