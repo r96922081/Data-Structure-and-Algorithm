@@ -18,4 +18,9 @@ BTree with 2 diferences
 
 ## [B+TreePaged](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/B%2BTreePaged.cs)
 
-B+Tree that uses only constant memory space, load/store between memory/disk by utilizing [PageBufferPool](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/PageBufferPool/PageBufferPool.cs)
+B+Tree that uses only constant memory space, load/store between memory/disk by utilizing [PageBufferPool](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C#/PageBufferPool/PageBufferPool.cs)
+
+
+## [MinPriorityQueue](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/MinPriorityQueue/MinPriorityQueue.cs)
+
+MinPriorityQueue that supports Increase/Decrease key that was not supported in .net library PriorityQueue
