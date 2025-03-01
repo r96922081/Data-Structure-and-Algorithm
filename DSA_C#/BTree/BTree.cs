@@ -29,16 +29,16 @@ public class BTreeNode<T> where T : IComparable<T>, IBTreeValue
 
     public override string ToString()
     {
-        string s = "[";
+        string s = " [";
         foreach (T key in keys)
         {
-            if (s != "[")
+            if (s != " [")
             {
                 s += ", ";
             }
             s += key.ToString();
         }
-        s += "]";
+        s += "] ";
         return s;
     }
 }
@@ -388,7 +388,7 @@ public class BTree<T> where T : IComparable<T>, IBTreeValue
             {
                 ret += nodeString;
             }
-            ret += "\n";
+            ret += "\n\n";
         }
 
         return ret;

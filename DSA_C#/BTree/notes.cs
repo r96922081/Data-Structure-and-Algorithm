@@ -3,17 +3,15 @@ BTree vs. B+Tree:
 
 1. Internal nodes of B+Tree store only key value and child pointer, the actual data is saved in leaf node
 
-2. Leaf nodes are linked together
+2. Leaf nodes are linked together (suitable for full scan and range scan)
 
 Advantage of B+Tree
 
 1. Internal nodes do not save actual data, so they require less space, more internal nodes can fit on a page 
 that will reduce cache miss. (You may consider load entire internal nodes into memory)
 
-2. Because leaf nodes are linked together, a full scan requires just on pass to the left most leaf node, then you can 
+2. Because leaf nodes are linked together, full scan and range scan require just on pass to the left most leaf node, then you can 
 traverse all leaf node by the link
-
-3. Range scan can also be benefited from 2.
 
 Advantage of BTree
 
