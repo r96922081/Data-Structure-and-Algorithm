@@ -24,3 +24,11 @@ B+Tree that uses only constant memory space, load/store between memory/disk by u
 ## [MinPriorityQueue](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/MinPriorityQueue/MinPriorityQueue.cs)
 
 MinPriorityQueue that supports Increase/Decrease key that was not supported in .net library PriorityQueue
+
+## [MD5 Hash](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/md5.c)
+
+MD5 that implements according to pseudo code on ![wiki](https://en.wikipedia.org/wiki/MD5)
+
+![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_1.png?raw=true)
+![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_2.png?raw=true)
+![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_3.png?raw=true)
