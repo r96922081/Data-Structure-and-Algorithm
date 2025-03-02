@@ -1,0 +1,486 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Code">
+      <UniqueIdentifier>{7f440754-5bd4-4cea-a262-10dcc9408b81}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva103.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva108.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva146.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva156.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva161.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva183.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva193.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva195.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva216.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva247.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva278.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva315.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva357.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva401.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva403.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva416.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva441.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva454.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva462.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva469.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva481.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva489.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva507.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva514.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva524.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva556.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva573.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva574.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva579.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva584.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva599.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva608.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva624.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva637.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva696.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva732.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva735.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva750.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva793.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva796.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva872.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva893.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva927.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva978.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva1047.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva1061.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva1062.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva1203.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva1237.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva1260.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva1262.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10004.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10102.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10107.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10114.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10141.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10172.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10189.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10258.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10264.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10284.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10305.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10306.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10337.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10341.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10443.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10487.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10496.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10503.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10507.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10567.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10576.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10616.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10646.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10656.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10660.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10684.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10718.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10721.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10755.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10765.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10812.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10813.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10819.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10827.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10855.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10895.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10901.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10920.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10945.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10954.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva10976.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11034.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11057.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11060.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11080.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11094.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11100.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11136.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11157.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11172.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11195.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11221.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11228.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11235.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11236.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11242.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11264.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11292.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11340.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11389.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11402.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11450.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11459.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11498.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11503.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11504.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11507.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11517.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11553.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11565.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11566.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11572.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11581.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11631.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11727.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11779.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11790.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11831.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11838.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11849.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11902.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11906.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11926.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11933.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11947.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11951.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11988.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11991.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva11995.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12032.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12060.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12085.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12192.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12210.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12247.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12356.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12405.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12442.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12455.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\uva12532.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\helper.cpp">
+      <Filter>Source Files\Code</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\helper.h">
+      <Filter>Source Files\Code</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

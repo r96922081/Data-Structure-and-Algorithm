@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{c3428bc6-907d-4047-9838-23e14e6e3f93}</ProjectGuid>
+    <RootNamespace>UvaOnlineJudge</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Code\helper.cpp" />
+    <ClCompile Include="Code\uva10004.cpp" />
+    <ClCompile Include="Code\uva10102.cpp" />
+    <ClCompile Include="Code\uva10107.cpp" />
+    <ClCompile Include="Code\uva10114.cpp" />
+    <ClCompile Include="Code\uva10141.cpp" />
+    <ClCompile Include="Code\uva10172.cpp" />
+    <ClCompile Include="Code\uva10189.cpp" />
+    <ClCompile Include="Code\uva10258.cpp" />
+    <ClCompile Include="Code\uva10264.cpp" />
+    <ClCompile Include="Code\uva10284.cpp" />
+    <ClCompile Include="Code\uva103.cpp" />
+    <ClCompile Include="Code\uva10305.cpp" />
+    <ClCompile Include="Code\uva10306.cpp" />
+    <ClCompile Include="Code\uva10337.cpp" />
+    <ClCompile Include="Code\uva10341.cpp" />
+    <ClCompile Include="Code\uva10443.cpp" />
+    <ClCompile Include="Code\uva1047.cpp" />
+    <ClCompile Include="Code\uva10487.cpp" />
+    <ClCompile Include="Code\uva10496.cpp" />
+    <ClCompile Include="Code\uva10503.cpp" />
+    <ClCompile Include="Code\uva10507.cpp" />
+    <ClCompile Include="Code\uva10567.cpp" />
+    <ClCompile Include="Code\uva10576.cpp" />
+    <ClCompile Include="Code\uva1061.cpp" />
+    <ClCompile Include="Code\uva10616.cpp" />
+    <ClCompile Include="Code\uva1062.cpp" />
+    <ClCompile Include="Code\uva10646.cpp" />
+    <ClCompile Include="Code\uva10656.cpp" />
+    <ClCompile Include="Code\uva10660.cpp" />
+    <ClCompile Include="Code\uva10684.cpp" />
+    <ClCompile Include="Code\uva10718.cpp" />
+    <ClCompile Include="Code\uva10721.cpp" />
+    <ClCompile Include="Code\uva10755.cpp" />
+    <ClCompile Include="Code\uva10765.cpp" />
+    <ClCompile Include="Code\uva108.cpp" />
+    <ClCompile Include="Code\uva10812.cpp" />
+    <ClCompile Include="Code\uva10813.cpp" />
+    <ClCompile Include="Code\uva10819.cpp" />
+    <ClCompile Include="Code\uva10827.cpp" />
+    <ClCompile Include="Code\uva10855.cpp" />
+    <ClCompile Include="Code\uva10895.cpp" />
+    <ClCompile Include="Code\uva10901.cpp" />
+    <ClCompile Include="Code\uva10920.cpp" />
+    <ClCompile Include="Code\uva10945.cpp" />
+    <ClCompile Include="Code\uva10954.cpp" />
+    <ClCompile Include="Code\uva10976.cpp" />
+    <ClCompile Include="Code\uva11034.cpp" />
+    <ClCompile Include="Code\uva11057.cpp" />
+    <ClCompile Include="Code\uva11060.cpp" />
+    <ClCompile Include="Code\uva11080.cpp" />
+    <ClCompile Include="Code\uva11094.cpp" />
+    <ClCompile Include="Code\uva11100.cpp" />
+    <ClCompile Include="Code\uva11136.cpp" />
+    <ClCompile Include="Code\uva11157.cpp" />
+    <ClCompile Include="Code\uva11172.cpp" />
+    <ClCompile Include="Code\uva11195.cpp" />
+    <ClCompile Include="Code\uva11221.cpp" />
+    <ClCompile Include="Code\uva11228.cpp" />
+    <ClCompile Include="Code\uva11235.cpp" />
+    <ClCompile Include="Code\uva11236.cpp" />
+    <ClCompile Include="Code\uva11242.cpp" />
+    <ClCompile Include="Code\uva11264.cpp" />
+    <ClCompile Include="Code\uva11292.cpp" />
+    <ClCompile Include="Code\uva11340.cpp" />
+    <ClCompile Include="Code\uva11389.cpp" />
+    <ClCompile Include="Code\uva11402.cpp" />
+    <ClCompile Include="Code\uva11450.cpp" />
+    <ClCompile Include="Code\uva11459.cpp" />
+    <ClCompile Include="Code\uva11498.cpp" />
+    <ClCompile Include="Code\uva11503.cpp" />
+    <ClCompile Include="Code\uva11504.cpp" />
+    <ClCompile Include="Code\uva11507.cpp" />
+    <ClCompile Include="Code\uva11517.cpp" />
+    <ClCompile Include="Code\uva11553.cpp" />
+    <ClCompile Include="Code\uva11565.cpp" />
+    <ClCompile Include="Code\uva11566.cpp" />
+    <ClCompile Include="Code\uva11572.cpp" />
+    <ClCompile Include="Code\uva11581.cpp" />
+    <ClCompile Include="Code\uva11631.cpp" />
+    <ClCompile Include="Code\uva11727.cpp" />
+    <ClCompile Include="Code\uva11779.cpp" />
+    <ClCompile Include="Code\uva11790.cpp" />
+    <ClCompile Include="Code\uva11831.cpp" />
+    <ClCompile Include="Code\uva11838.cpp" />
+    <ClCompile Include="Code\uva11849.cpp" />
+    <ClCompile Include="Code\uva11902.cpp" />
+    <ClCompile Include="Code\uva11906.cpp" />
+    <ClCompile Include="Code\uva11926.cpp" />
+    <ClCompile Include="Code\uva11933.cpp" />
+    <ClCompile Include="Code\uva11947.cpp" />
+    <ClCompile Include="Code\uva11951.cpp" />
+    <ClCompile Include="Code\uva11988.cpp" />
+    <ClCompile Include="Code\uva11991.cpp" />
+    <ClCompile Include="Code\uva11995.cpp" />
+    <ClCompile Include="Code\uva1203.cpp" />
+    <ClCompile Include="Code\uva12032.cpp" />
+    <ClCompile Include="Code\uva12060.cpp" />
+    <ClCompile Include="Code\uva12085.cpp" />
+    <ClCompile Include="Code\uva12192.cpp" />
+    <ClCompile Include="Code\uva12210.cpp" />
+    <ClCompile Include="Code\uva12247.cpp" />
+    <ClCompile Include="Code\uva12356.cpp" />
+    <ClCompile Include="Code\uva1237.cpp" />
+    <ClCompile Include="Code\uva12405.cpp" />
+    <ClCompile Include="Code\uva12442.cpp" />
+    <ClCompile Include="Code\uva12455.cpp" />
+    <ClCompile Include="Code\uva12532.cpp" />
+    <ClCompile Include="Code\uva1260.cpp" />
+    <ClCompile Include="Code\uva1262.cpp" />
+    <ClCompile Include="Code\uva146.cpp" />
+    <ClCompile Include="Code\uva156.cpp" />
+    <ClCompile Include="Code\uva161.cpp" />
+    <ClCompile Include="Code\uva183.cpp" />
+    <ClCompile Include="Code\uva193.cpp" />
+    <ClCompile Include="Code\uva195.cpp" />
+    <ClCompile Include="Code\uva216.cpp" />
+    <ClCompile Include="Code\uva247.cpp" />
+    <ClCompile Include="Code\uva278.cpp" />
+    <ClCompile Include="Code\uva315.cpp" />
+    <ClCompile Include="Code\uva357.cpp" />
+    <ClCompile Include="Code\uva401.cpp" />
+    <ClCompile Include="Code\uva403.cpp" />
+    <ClCompile Include="Code\uva416.cpp" />
+    <ClCompile Include="Code\uva441.cpp" />
+    <ClCompile Include="Code\uva454.cpp" />
+    <ClCompile Include="Code\uva462.cpp" />
+    <ClCompile Include="Code\uva469.cpp" />
+    <ClCompile Include="Code\uva481.cpp" />
+    <ClCompile Include="Code\uva489.cpp" />
+    <ClCompile Include="Code\uva507.cpp" />
+    <ClCompile Include="Code\uva514.cpp" />
+    <ClCompile Include="Code\uva524.cpp" />
+    <ClCompile Include="Code\uva556.cpp" />
+    <ClCompile Include="Code\uva573.cpp" />
+    <ClCompile Include="Code\uva574.cpp" />
+    <ClCompile Include="Code\uva579.cpp" />
+    <ClCompile Include="Code\uva584.cpp" />
+    <ClCompile Include="Code\uva599.cpp" />
+    <ClCompile Include="Code\uva608.cpp" />
+    <ClCompile Include="Code\uva624.cpp" />
+    <ClCompile Include="Code\uva637.cpp" />
+    <ClCompile Include="Code\uva696.cpp" />
+    <ClCompile Include="Code\uva732.cpp" />
+    <ClCompile Include="Code\uva735.cpp" />
+    <ClCompile Include="Code\uva750.cpp" />
+    <ClCompile Include="Code\uva793.cpp" />
+    <ClCompile Include="Code\uva796.cpp" />
+    <ClCompile Include="Code\uva872.cpp" />
+    <ClCompile Include="Code\uva893.cpp" />
+    <ClCompile Include="Code\uva927.cpp" />
+    <ClCompile Include="Code\uva978.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Code\helper.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

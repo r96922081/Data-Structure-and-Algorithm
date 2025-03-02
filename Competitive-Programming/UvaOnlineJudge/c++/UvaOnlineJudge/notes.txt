@@ -1,0 +1,127 @@
+﻿TODO: 
+
+1. TLE of uva 103
+
+2. WA of uva 750
+
+3. TODO 11413 folder, Why my WA.txt get WA verdict???
+
+========================================================================================
+
+NOTE:
+
+uva - 10646
+
+"determine the Y-th card from the pile"
+
+In real life, it's 1-based.  So if Y = 1, then we need to get the last element,
+if Y = 2, we get the second last element
+
+====
+
+uva - 696
+
+Output format, 1 knights may be placed on a 1 row 1 column board.
+if the question does not mention that we should use singlar (not plural) form, then don't use it
+
+====
+
+uva - 10813
+
+output format
+
+BINGO after 14 numbers announced
+
+是指第14個number被抽中了，而不是說球上頭為14的球被抽中了
+
+====
+
+uva - 1061
+
+output format
+
+If multiple blood types for parents or child are possible, 
+print all possible values in a comma-separated list enclosed in curly braces
+
+Note the word "multiple", so here is the trap
+
+{"A+", "A-"}
+{"AB+", "AB-", "B+", "B-"}
+O-  // <== this one
+
+====
+
+uva -10920
+
+Sqaure size <= 10000
+the biggest number is larger than max int, so be care of overflow
+
+===
+
+uva - 11236
+
+0.01 <= a,b,c,d <= 20.00
+find a + b + c + d = a * b * c * d
+
+1. 用for loop去traverse時，記得要假設 a <= b <= c <= d，以免重復，也可減少loop count
+2. 避免用浮點數除法，要改成int乘法
+
+for (int a = 1; a <= 2000 && 4 * a <= 2000; a++)
+  for (int b = a; b <= 2000 && (a + b * 3) <= 2000; b++)
+    for (int c = b; c <= 2000 && (a + b + c * 2) <= 2000; c++)
+             ...
+
+===
+
+uva - 193
+得到TLE不代表演算法正確，有可能是錯誤的才導致TLE
+
+如這題的解法，這樣子會TLE, 但如果把 i < node_count  改成 i <= node_count 就AC了!
+
+TLE:
+	if (node_index == node_count + 1)
+	{
+		if (black_count > answer.size())
+		{
+			answer.clear();
+			for (int i = 1; i < node_count; i++)
+				if (black_nodes[i])
+					answer.insert(i);
+		}
+
+		return;
+	}
+AC:
+	if (node_index == node_count + 1)
+	{
+		if (black_count > answer.size())
+		{
+			answer.clear();
+			for (int i = 1; i <= node_count; i++)
+				if (black_nodes[i])
+					answer.insert(i);
+		}
+
+		return;
+	}
+
+====
+
+uva - 11951
+
+The cost of a field can be "0", which means FREE
+
+Be careful ...........
+
+====
+
+uva - 11566
+
+WA => if (((l + (T * (N + 1)) + price) * 1.1) <= total_money)
+AC => if (((l + (T * (N + 1)) + price) * 11) <= total_money * 10)
+
+I don't know why ~~~ ... I would get rid of float point calculation in the future
+
+===
+uva - 1103
+Recursive may be too deep which cause stack overflow, use queue is too slow because of its deque(), use vector is much faster

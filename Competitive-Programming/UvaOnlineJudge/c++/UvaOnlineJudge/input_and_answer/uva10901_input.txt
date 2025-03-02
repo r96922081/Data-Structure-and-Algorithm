@@ -1,0 +1,44 @@
+8
+
+1 5 2
+0 left
+0 left
+
+2 5 3
+2 left
+2 left
+2 right
+
+2 5 3
+2 left
+2 right
+2 left
+
+2 5 1
+1 right
+
+2 5 3
+1 right
+8 right
+10 left
+
+2 5 3
+1 right
+8 right
+8 right
+
+2 10 10
+0 left
+10 left
+20 left
+30 left
+40 left
+50 left
+60 left
+70 left
+80 left
+90 left
+2 10 3
+10 right
+25 left
+40 left

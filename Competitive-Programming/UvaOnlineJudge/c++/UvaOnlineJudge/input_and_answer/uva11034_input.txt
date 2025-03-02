@@ -1,0 +1,30 @@
+6
+
+20 1
+1000 right
+
+20 3
+1000 left
+1000 left
+1000 left
+
+20 4
+380 left
+720 left
+1340 right
+1040 left
+15 4
+380 left
+720 left
+1340 right
+1040 left
+15 4
+380 left
+720 left
+1340 left
+1040 left
+15 4
+380 right
+720 right
+1340 right
+1040 right
