@@ -9,13 +9,9 @@
 
 ## [SHA256 Hash](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/sha256.c)
 
-[SHA256](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/sha256.c) that implements pseudo code on [wiki](https://en.wikipedia.org/wiki/SHA-2)\
+[SHA256](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/sha256.c) that implements [pseudo code](https://r96922081.github.io/DSA/sha256_pseudo.png) on [wiki](https://en.wikipedia.org/wiki/SHA-2)\
+\
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/sha256_3.png?raw=true)
-
-
-Pseudo code from wiki:\
-![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/sha256_1.png?raw=true)
-![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/sha256_2.png?raw=true)
 
 ## [BTree](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/BTree.cs)
 The [BTree](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/BTree.cs) generalizes the binary search tree, allowing for nodes with more than two children.
