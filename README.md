@@ -22,8 +22,8 @@ Pseudo code from wiki:\
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/sha256_1.png?raw=true)
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/sha256_2.png?raw=true)
 
-## [BTree](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/B%2BTree.cs)
-The [BTree](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/B%2BTree.cs) generalizes the binary search tree, allowing for nodes with more than two children.
+## [BTree](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/BTree.cs)
+The [BTree](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/BTree.cs) generalizes the binary search tree, allowing for nodes with more than two children.
 The Btree is well suited for storage systems that read and write relatively large blocks of data, 
 such as databases and file systems
 
@@ -39,7 +39,7 @@ such as databases and file systems
 
 ## [B+TreePaged](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/B%2BTreePaged.cs)
 
-[B+TreePaged](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/B%2BTreePaged.cs) = B+Tree uses only constant memory space, load/store between memory/disk by utilizing [PageBufferPool](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C#/PageBufferPool/PageBufferPool.cs)
+[B+TreePaged](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/B%2BTreePaged.cs) = B+Tree uses only constant memory space, load/store between memory/disk by utilizing [PageBufferPool](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/PageBufferPool/PageBufferPool.cs)
 
 
 ## [MinPriorityQueue](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/MinPriorityQueue/MinPriorityQueue.cs)
