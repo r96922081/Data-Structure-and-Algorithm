@@ -3,14 +3,9 @@
 
 ## [MD5 Hash](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/md5.c)
 
-[MD5](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/md5.c) that implements pseudo code on [wiki](https://en.wikipedia.org/wiki/MD5). \
+[MD5](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/md5.c) that implements [pseudo code](https://r96922081.github.io/DSA/md5_pseudo.png) on [wiki](https://en.wikipedia.org/wiki/MD5). \
+\
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_4.png?raw=true)
-
-
-Pseudo code from wiki:\
-![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_1.png?raw=true)
-![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_2.png?raw=true)
-![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_3.png?raw=true)
 
 ## [SHA256 Hash](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/sha256.c)
 
