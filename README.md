@@ -13,6 +13,18 @@
 \
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/sha256_3.png?raw=true)
 
+## [Huffman Encoding](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/Compression/HuffmanEncoding.cs)
+
+[Huffman Encoding](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/Compression/HuffmanEncoding.cs) that compress the novel [Alice's Adventures in Wonderland](https://github.com/google/snappy/blob/main/testdata/alice29.txt) with 57% compression ratio (not impressive)\
+\
+![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/huffman_coding.png?raw=true)
+
+## [Lz77 Compression](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/Compression/Lz77Compression.cs)
+
+[Lz77 Compression](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/Compression/Lz77Compression.cs) that compress the novel [Alice's Adventures in Wonderland](https://github.com/google/snappy/blob/main/testdata/alice29.txt) with 56% compression ratio (not impressive)\
+\
+![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/lz77.png?raw=true)
+
 ## [BTree](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/BTree.cs)
 The [BTree](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/BTree/BTree.cs) generalizes the binary search tree, allowing for nodes with more than two children.
 The Btree is well suited for storage systems that read and write relatively large blocks of data, 
