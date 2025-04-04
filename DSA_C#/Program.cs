@@ -6,6 +6,9 @@
         BTreeUt.Ut();
         BPlusTreeUt.Ut();
         PageBufferPoolUt.Ut();
-        BPlusTreePagedUt.Ut();
+        BPlusTreePagedUt.Ut();        
+        ArithmeticEncodingUt.Ut();
+        HuffmanEncodingUt.Ut();
+        Lz77CompressionUt.Ut();
     }
 }
