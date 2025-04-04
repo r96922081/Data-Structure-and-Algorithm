@@ -3,13 +3,13 @@
 
 ## [MD5 Hash](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/md5.c)
 
-[MD5](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/md5.c) that implements [pseudo code](https://r96922081.github.io/DSA/md5_pseudo.png) on [wiki](https://en.wikipedia.org/wiki/MD5). \
+[MD5](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/md5.c) that simply implements [pseudo code](https://r96922081.github.io/DSA/md5_pseudo.png) on [wiki](https://en.wikipedia.org/wiki/MD5). \
 \
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/md5_4.png?raw=true)
 
 ## [SHA256 Hash](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/sha256.c)
 
-[SHA256](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/sha256.c) that implements [pseudo code](https://r96922081.github.io/DSA/sha256_pseudo.png) on [wiki](https://en.wikipedia.org/wiki/SHA-2)\
+[SHA256](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C/sha256.c) that simply implements [pseudo code](https://r96922081.github.io/DSA/sha256_pseudo.png) on [wiki](https://en.wikipedia.org/wiki/SHA-2)\
 \
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/sha256_3.png?raw=true)
 
