@@ -21,7 +21,9 @@
 
 ## [Lz77 Compression](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/Compression/Lz77Compression.cs)
 
-[Lz77 Compression](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/Compression/Lz77Compression.cs) that compress the novel [Alice's Adventures in Wonderland](https://github.com/google/snappy/blob/main/testdata/alice29.txt) with 56% compression ratio (not impressive)\
+
+
+[Lz77 Compression](https://github.com/r96922081/Data-Structure-and-Algorithm/blob/main/DSA_C%23/Compression/Lz77Compression.cs) ([algorithm](https://medium.com/@vincentcorbee/lz77-compression-in-javascript-cd2583d2a8bd)) that compress the novel [Alice's Adventures in Wonderland](https://github.com/google/snappy/blob/main/testdata/alice29.txt) with 56% compression ratio (not impressive)\
 \
 ![enter image description here](https://github.com/r96922081/r96922081.github.io/blob/main/DSA/lz77.png?raw=true)
 
